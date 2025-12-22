@@ -385,3 +385,124 @@ canvas {
     0% { top: 0; }
     100% { top: 100%; }
 }
+
+/* ============================= */
+/* 📱 MOBILE SCREEN OPTIMIZATION */
+/* ============================= */
+
+@media (max-width: 768px) {
+
+  /* Allow vertical scrolling on mobile */
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* --- UI MENU --- */
+  #ui-menu {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    top: auto;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 50;
+  }
+
+  #ui-menu button {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+
+  /* --- CONTENT CARD --- */
+  .content-card {
+    width: 90vw;
+    max-width: 420px;
+    max-height: 75vh;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 0.95em;
+  }
+
+  .content-card h1 {
+    font-size: 1.6em;
+  }
+
+  .content-card h2 {
+    font-size: 1.4em;
+  }
+
+  .content-card p {
+    font-size: 0.95em;
+    line-height: 1.6;
+  }
+
+  /* --- TOUCH FRIENDLY BUTTONS --- */
+  .content-card .contact-buttons button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    font-size: 15px;
+  }
+
+  /* --- DATA PROBE --- */
+  .data-probe {
+    width: 85vw;
+    height: auto;
+    max-height: 160px;
+    font-size: 0.75em;
+    padding: 12px;
+  }
+
+  /* --- EXPANDED PROJECT CARD --- */
+  .expanded-card {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    padding: 20px;
+  }
+
+  .expanded-card h2 {
+    font-size: 1.4em;
+  }
+
+  .expanded-card .close-button {
+    font-size: 2.4em;
+    top: 12px;
+    right: 18px;
+  }
+
+  /* --- SCREENSHOTS STACK VERTICALLY --- */
+  .screenshot-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- RESUME --- */
+  .resume-container {
+    padding: 20px;
+  }
+
+  .resume-container h1 {
+    font-size: 1.8em;
+  }
+
+  .resume-container h3 {
+    font-size: 1.2em;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- LOADING SCREEN TEXT SCALE --- */
+  #status-text {
+    font-size: 12px;
+  }
+
+  #loading-logs {
+    font-size: 9px;
+  }
+}
