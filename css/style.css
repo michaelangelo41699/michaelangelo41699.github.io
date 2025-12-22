@@ -1,0 +1,318 @@
+/* css/style.css */
+
+/* Reset and Global Styles */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: 'Arial', sans-serif;
+    color: white;
+}
+
+/* Ensure canvas elements are displayed */
+canvas {
+    display: block;
+}
+
+/* UI Menu Overlay (Buttons) */
+#ui-menu {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    z-index: 10;
+}
+
+#ui-menu button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: 10px 20px;
+    margin-right: 15px;
+    font-size: 16px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#ui-menu button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+/* --- CSS2D Content Card Styling (Zoom-to-Reveal Effect) --- */
+
+.content-card {
+    /* Dimensions and visual style */
+    width: 380px; /* Slight increase for better text wrapping */
+    
+    /* CRITICAL FIX: Increased max-height to ensure the PROJECTS content fits */
+    max-height: 500px; 
+    
+    padding: 20px;
+    background: rgba(10, 10, 10, 0.85); 
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    text-align: left;
+    
+    /* Allow scrolling if content still overflows (safer) */
+    overflow-y: auto; 
+    
+    /* Animation Preparation */
+    will-change: transform, opacity; 
+    
+    /* Initial state (Set by JS, used for the starting opacity) */
+    opacity: 0;
+
+    /* CRITICAL UPDATE: Uses a custom bezier curve for a more dramatic pop/slide effect. */
+    transition: opacity 1.5s ease-out, transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    
+    pointer-events: none; 
+}
+
+.content-card.active {
+    /* Final state: Card is fully visible and slides forward to z=0 */
+    opacity: 1;
+    pointer-events: auto; 
+}
+
+/* Card Typography */
+.content-card h1 { 
+    font-size: 2.2em;
+    font-weight: 300;
+    margin-bottom: 0.5em;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.content-card h2 { 
+    color: #99ccff;
+    margin-top: 0;
+    font-size: 1.8em;
+    font-weight: 500;
+}
+.content-card p { 
+    font-size: 1.0em;
+    line-height: 1.5;
+    margin: 0.8em 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+.content-card .contact-buttons button { 
+    background: #99ccff; 
+    color: black; 
+    border: none; 
+    padding: 8px 12px; 
+    border-radius: 4px; 
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.content-card .contact-buttons button:hover {
+    background: #66b3ff;
+}
+
+/* --- NEW: Data Probe Panel Styling (Idea 2) --- */
+
+.data-probe {
+    /* Dimensions and style */
+    width: 280px;
+    height: 180px;
+    padding: 15px;
+    
+    /* Technical aesthetics */
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #66ccff; /* Blue technical border */
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(102, 204, 255, 0.5); /* Subtle blue glow */
+    
+    /* Typography */
+    font-family: 'Courier New', monospace; /* Monospace for code/data */
+    font-size: 0.85em;
+    color: #33ff99; /* Bright green text for data output */
+    line-height: 1.4;
+    overflow: hidden; 
+    text-align: left;
+
+    /* Transition for appearance (must be fast) */
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+    
+    pointer-events: none;
+    z-index: 100;
+}
+
+.data-probe.ready {
+    opacity: 1;
+}
+
+/* Style for the progress bar */
+.data-probe .progress-bar {
+    height: 6px;
+    background: rgba(51, 255, 153, 0.2);
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.data-probe .progress-fill {
+    height: 100%;
+    width: 0%; /* Starts at 0 */
+    background: #33ff99;
+    transition: width 0.7s ease-out; /* Animation for the fill */
+}
+
+/* --- NEW: Expanded Project Card Styling --- */
+
+.expanded-card {
+    position: fixed; /* Fix to viewport */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center it */
+    
+    width: 90vw; /* Take up most of the screen width */
+    max-width: 900px; /* Limit for very large screens */
+    height: 90vh; /* Take up most of the screen height */
+    max-height: 800px;
+    
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.95); /* Make it darker to stand out */
+    border: 3px solid #66ccff; /* Stronger technical border */
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(102, 204, 255, 0.7); /* Stronger glow */
+    
+    z-index: 999; /* Ensure it is on top of everything */
+    overflow-y: auto; /* Allow scrolling for long content */
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.expanded-card.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.expanded-card h2 {
+    color: #33ff99; /* Green for the project title */
+    border-bottom: 1px solid rgba(153, 204, 255, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.expanded-card .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 2em;
+    cursor: pointer;
+    color: #99ccff;
+    transition: color 0.2s;
+}
+
+.expanded-card .close-button:hover {
+    color: #ff3399; /* Pink/red highlight for close */
+}
+
+/* Styling for the screenshot area */
+.screenshot-container {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.screenshot-container img {
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(153, 204, 255, 0.5);
+    border-radius: 5px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.screenshot-container img:hover {
+    opacity: 1;
+}
+
+/* --- Resume Styling for Expanded Card --- */
+
+.resume-container {
+    padding: 30px;
+    max-width: 850px; /* Standard resume width */
+    margin: 0 auto;
+    color: #f0f0f0; /* Light text on dark background */
+}
+
+.resume-container header {
+    border-bottom: 2px solid #33ff99; /* Green accent line */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.resume-container h1 {
+    font-size: 2.5em;
+    margin-bottom: 5px;
+    color: #99ccff; /* Blue highlight */
+}
+
+.resume-container h2 {
+    font-size: 1.2em;
+    font-weight: 400;
+    margin-top: 0;
+    color: #ccc;
+}
+
+.contact-info a {
+    color: #99ccff;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.resume-container section {
+    margin-bottom: 25px;
+}
+
+.resume-container h3 {
+    font-size: 1.4em;
+    color: #33ff99; /* Green accent for section headers */
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.resume-container .entry {
+    margin-bottom: 15px;
+}
+
+.resume-container .entry h4 {
+    font-size: 1.1em;
+    color: #f0f0f0;
+    margin-bottom: 5px;
+}
+
+.resume-container ul {
+    list-style: square;
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.resume-container ul li {
+    margin-bottom: 5px;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.skills-grid h4 {
+    color: #99ccff;
+    margin-bottom: 5px;
+}
+
+.skills-grid p {
+    font-size: 0.95em;
+}
