@@ -140,12 +140,30 @@ const GUARDIAN_FULL_HTML = `
     </div>
 `;
 
+const PORTFOLIO_FULL_HTML = `
+    <h2>Interactive 3D Portfolio (Cognitive Systems Interface)</h2>
+    <p>A high-performance web experience built to demonstrate the intersection of Information Systems and 3D Creative Coding. This project focuses on spatial UI/UX and efficient asset management.</p>
+    
+    <h3>Technical Highlights:</h3>
+    <ul>
+        <li>**Three.js Engine:** Built with a custom rendering loop, implementing **LERP-based** camera transitions for smooth "zoom-to-reveal" navigation between content nodes.</li>
+        <li>**Blender Pipeline:** Assets (including the central cognitive model) were sculpted, retopologized, and UV-mapped in **Blender** specifically for GLTF/GLB web optimization.</li>
+        <li>**Hybrid UI System:** Integrated a **CSS2DRenderer** layer that allows standard HTML/CSS to be projected into 3D space, ensuring SEO-friendliness and accessibility without sacrificing the 3D aesthetic.</li>
+        <li>**Modular Architecture:** Developed a data-driven content system using ES6 modules, allowing for instant portfolio updates via a central lookup table.</li>
+    </ul>
+    
+    <div class="contact-buttons">
+        <button onclick="window.open('https://github.com/michaelangelo41699', '_blank')">View Source Code</button>
+    </div>
+`;
+
 
 // --- Project Details Lookup Table ---
 // CRITICAL: All three full HTML constants are correctly mapped here.
 export const PROJECT_DETAILS = {
     ALEXANDRIA: ALEXANDRIA_FULL_HTML,
     GUARDIAN: GUARDIAN_FULL_HTML,
+    PORTFOLIO: PORTFOLIO_FULL_HTML,
     RESUME: RESUME_HTML,
 };
 
@@ -202,24 +220,30 @@ export const CAMERA_POSITIONS = {
                 
                 <li onclick="openProject('ALEXANDRIA')" 
                     style="cursor: pointer; color: #99ccff; transition: color 0.2s;">
-                    **&gt; Alexandria (AI Study Platform):** End-to-end learning platform transforming raw academic materials. **[Expand Data]**
+                     Alexandria (AI Study Platform): End-to-end learning platform transforming raw academic materials. [Project Details]
                 </li>
                 <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Architected full-stack: **React Native + FastAPI**.</li>
-                    <li>Designed scalable backend with **Redis** queues.</li>
+                    <li>Architected full-stack: React Native, Tmeagui,FastAPI.</li>
+                    <li>Designed scalable backend with Redis queues, AWS, Render.</li>
                 </ul>
                 
                 <li onclick="openProject('GUARDIAN')" 
                     style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                    **&gt; Guardian (Behavioral Intelligence):** Privacy-preserving system inferring user patterns and emotional drift. **[Expand Data]**
+                     Guardian (Behavioral Intelligence): Privacy-preserving system inferring user patterns and emotional drift. [Project Details]
                 </li>
                 <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Focus: **Privacy-aware ML** and **On-device data isolation**.</li>
-                    <li>Architected **dual-pipeline logging** for temporal signals.</li>
+                    <li>Focus: Privacy-aware ML and On-device data isolation.</li>
+                    <li>Architected dual-pipeline logging for temporal signals.</li>
                 </ul>
                 
-                <li>**&gt; Project Beta:** Data visualization dashboard deployed on AWS. <em>[View Link]</em></li>
-                <li>**&gt; Project Gamma:** Interactive 3D application (like this one). <em>[View Link]</em></li>
+                <li onclick="openProject('PORTFOLIO')" 
+                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
+                     Interactive 3D Portfolio: Web experience demonstrating 3D coding, Immersive WebGL environment and spatial UI/UX. [Project Details]
+                     </li>
+                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
+                    <li>Built with Three.js, with LERP-based camera navigation, Blender-optimized assets.</li>
+                    <li>Hybrid CSS2DRenderer for SEO-friendly 3D UI.</li>
+                </ul>
             </ul>
             <p style="font-size: 0.9em; color: #aaa; margin-top: 10px;">Click to explore specific deployments.</p>
         `
@@ -239,7 +263,6 @@ export const CAMERA_POSITIONS = {
             <ul style="list-style: none; padding: 0;">
                 <li><a href="https://www.linkedin.com/in/michael-gonzalez-190321272" target="_blank" style="color: #99ccff;">&gt; LinkedIn Profile</a></li>
                 <li><a href="https://github.com/michaelangelo41699" target="_blank" style="color: #99ccff;">&gt; GitHub Repository</a></li>
-                <li><a href="https://x.com/yourhandle" target="_blank" style="color: #99ccff;">&gt; Twitter/X Handle</a></li>
             </ul>
         `
     }
