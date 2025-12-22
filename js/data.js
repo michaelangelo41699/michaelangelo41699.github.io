@@ -102,11 +102,11 @@ const ALEXANDRIA_FULL_HTML = `
     
     <h3>Key System Achievements:</h3>
     <ul>
-        <li>**Full-Stack Architecture:** Designed system using **React Native (Mobile)** and a high-performance **FastAPI** backend.</li>
-        <li>**Scalable AI Workflow:** Architected scalable backend services with background workers and **Redis** queues to handle long-running AI tasks (OCR extraction, quiz generation) without blocking user experience.</li>
-        <li>**Data Pipeline Integrity:** Implemented robust data pipelines for parsing unstructured academic content into structured question formats (MCQ, true/false, open-ended) with validation layers to prevent malformed outputs.</li>
-        <li>**Production Deployment:** Deployed and managed cloud infrastructure (API services, workers, storage, queues), including monitoring, timeout mitigation, and performance tuning under real usage constraints.</li>
-        <li>**Mobile UX:** Built a mobile-first user experience emphasizing clarity, feedback loops, retakes, and progress tracking—bridging AI systems with human-centered design.</li>
+        <li>Full-Stack Architecture: Designed system using React Native (Mobile) and a high-performance FastAPI backend.</li>
+        <li>Scalable AI Workflow:Architected scalable backend services with background workers and Redis queues to handle long-running AI tasks (OCR extraction, quiz generation) without blocking user experience.</li>
+        <li>Data Pipeline Integrity: Implemented robust data pipelines for parsing unstructured academic content into structured question formats (MCQ, true/false, open-ended) with validation layers to prevent malformed outputs.</li>
+        <li>Production Deployment: Deployed and managed cloud infrastructure (API services, workers, storage, queues), including monitoring, timeout mitigation, and performance tuning under real usage constraints.</li>
+        <li>Mobile UX: Built a mobile-first user experience emphasizing clarity, feedback loops, retakes, and progress tracking—bridging AI systems with human-centered design.</li>
     </ul>
 
     <div class="screenshot-container">
@@ -127,16 +127,16 @@ const GUARDIAN_FULL_HTML = `
     
     <h3>Key System Achievements:</h3>
     <ul>
-        <li>**Privacy-Preserving Logging:** Architected a dual-pipeline logging system (on-device + background processing) capturing notifications, app usage, and temporal behavior signals while minimizing data exposure.</li>
-        <li>**Custom ML Inference:** Built a custom ML inference pipeline combining fine-tuned language models and rule-based reasoning to classify emotional states, influence tactics, and behavioral patterns in real time.</li>
-        <li>**Domain-Specific Classifiers:** Designed and trained domain-specific classifiers using curated and synthetic datasets (emotion detection, persuasion techniques, misinformation signals), including label schema design and evaluation loops.</li>
-        <li>**Data Isolation:** Implemented on-device data storage and analysis with strict separation between raw signals and derived insights, prioritizing user privacy and explainability.</li>
-        <li>**Coaching Layer:** Developed a coaching layer that translates abstract model outputs into human-readable insights and actionable interventions, closing the loop between inference and behavior change.</li>
-        <li>**Backend Deployment:** Deployed backend services supporting inference, aggregation, and daily learning jobs, with health checks, logging, and failure handling.</li>
+        <li>Privacy-Preserving Logging: Architected a dual-pipeline logging system (on-device + background processing) capturing notifications, app usage, and temporal behavior signals while minimizing data exposure.</li>
+        <li>Custom ML Inference: Built a custom ML inference pipeline combining fine-tuned language models and rule-based reasoning to classify emotional states, influence tactics, and behavioral patterns in real time.</li>
+        <li>Domain-Specific Classifiers: Designed and trained domain-specific classifiers using curated and synthetic datasets (emotion detection, persuasion techniques, misinformation signals), including label schema design and evaluation loops.</li>
+        <li>Data Isolation: Implemented on-device data storage and analysis with strict separation between raw signals and derived insights, prioritizing user privacy and explainability.</li>
+        <li>Coaching Layer: Developed a coaching layer that translates abstract model outputs into human-readable insights and actionable interventions, closing the loop between inference and behavior change.</li>
+        <li>Backend Deployment: Deployed backend services supporting inference, aggregation, and daily learning jobs, with health checks, logging, and failure handling.</li>
     </ul>
 
     <div class="contact-buttons">
-        <button onclick="window.open('path/to/guardian-live-demo', '_blank')">View Live Demo</button>
+        <button onclick="window.open('path/to/guardian-live-demo(coming soon)', '_blank')">View Live Demo</button>
     </div>
 `;
 
@@ -146,10 +146,10 @@ const PORTFOLIO_FULL_HTML = `
     
     <h3>Technical Highlights:</h3>
     <ul>
-        <li>**Three.js Engine:** Built with a custom rendering loop, implementing **LERP-based** camera transitions for smooth "zoom-to-reveal" navigation between content nodes.</li>
-        <li>**Blender Pipeline:** Assets (including the central cognitive model) were sculpted, retopologized, and UV-mapped in **Blender** specifically for GLTF/GLB web optimization.</li>
-        <li>**Hybrid UI System:** Integrated a **CSS2DRenderer** layer that allows standard HTML/CSS to be projected into 3D space, ensuring SEO-friendliness and accessibility without sacrificing the 3D aesthetic.</li>
-        <li>**Modular Architecture:** Developed a data-driven content system using ES6 modules, allowing for instant portfolio updates via a central lookup table.</li>
+        <li>Three.js Engine:  Built with a custom rendering loop, implementing LERP-based camera transitions for smooth "zoom-to-reveal" navigation between content nodes.</li>
+        <li>Blender Pipeline: Assets (including the central cognitive model) were sculpted, retopologized, and UV-mapped in Blender specifically for GLTF/GLB web optimization.</li>
+        <li>Hybrid UI System: Integrated a CSS2DRenderer layer that allows standard HTML/CSS to be projected into 3D space, ensuring SEO-friendliness and accessibility without sacrificing the 3D aesthetic.</li>
+        <li>Modular Architecture: Developed a data-driven content system using ES6 modules, allowing for instant portfolio updates via a central lookup table.</li>
     </ul>
     
     <div class="contact-buttons">
@@ -197,9 +197,9 @@ export const CAMERA_POSITIONS = {
             <h2>ABOUT // Skill Matrix</h2>
             <p>Core Competencies (Temporal Lobe Synthesis):</p>
             <ul style="list-style: square; margin-left: 20px;">
-                <li>**Frontend:** React, Three.js, Vanilla JS, CSS (Sass/Styled).</li>
-                <li>**Backend:** Node.js, Python, PostgreSQL/MongoDB.</li>
-                <li>**Cloud & DevOps:** AWS (S3, EC2), Docker, CI/CD.</li>
+                <li>Frontend: React, Three.js, Vanilla JS, CSS (Sass/Styled).</li>
+                <li>Backend: Node.js, Python, PostgreSQL/MongoDB.</li>
+                <li>Cloud & DevOps: AWS (S3, EC2), Docker, CI/CD, Redis.</li>
             </ul>
             <div class="contact-buttons">
                 <button onclick="openProject('RESUME')">View Resume (HTML)</button>
