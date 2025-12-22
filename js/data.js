@@ -6,7 +6,7 @@ export const BRAIN_SCALE = 1.0;
 
 // --- DETAILED PROJECT DESCRIPTIONS ---
 
-// 1. Full HTML for the Resume (Unchanged from last detailed version)
+// 1. Full HTML for the Resume 
 const RESUME_HTML = `
     <div class="resume-container">
         <header>
@@ -28,7 +28,7 @@ const RESUME_HTML = `
             <h3>EDUCATION</h3>
             <div class="entry">
                 <h4>Universidad Interamericana de Puerto Rico – Aguadilla</h4>
-                <p>Bachelor’s Degree in Information Systems (In Progress)</p>
+                <p>Bachelor’s Degree in Computer Science (In Progress)</p>
                 <p>Honors: Dean’s List</p>
                 <p>Relevant Coursework: Object-Oriented Programming (Java), Database Systems, Web Development (HTML, CSS, JavaScript), User Experience & Interface Design, Systems Analysis & Design, Computer Science Fundamentals.</p>
             </div>
@@ -73,7 +73,7 @@ const RESUME_HTML = `
                 <ul>
                     <li>Conducted dataset research and curation related to persuasion, manipulation, and emotional framing. Applied psychological frameworks to interpret digital behavior and content influence.</li>
                     <li>Integrated cloud-based LLM APIs for real-time content analysis and insight generation. Designed hybrid AI architecture combining classical ML classifiers with LLM-based reasoning.</li>
-                    <li>Built and deployed a **Flask-based API** to serve AI inference results to mobile clients, implementing batch and real-time analysis endpoints.</li>
+                    <li>Built and deployed a Flask-based API to serve AI inference results to mobile clients, implementing batch and real-time analysis endpoints.</li>
                     <li>Designed and developed a mobile application focused on increasing user self-awareness around digital consumption and emotional manipulation.</li>
                 </ul>
             </div>
@@ -116,7 +116,7 @@ const ALEXANDRIA_FULL_HTML = `
     </div>
     <br>
     <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/your-project-repo', '_blank')">View Source Code</button>
+        <button onclick="window.open('https://github.com/Alexandria-Learning-Ai/alexandria-frontend', '_blank')">View Source Code</button>
     </div>
 `;
 
@@ -153,7 +153,7 @@ const PORTFOLIO_FULL_HTML = `
     </ul>
     
     <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/michaelangelo41699', '_blank')">View Source Code</button>
+        <button onclick="window.open('https://github.com/michaelangelo41699/michaelangelo41699.github.io', '_blank')">View Source Code</button>
     </div>
 `;
 
