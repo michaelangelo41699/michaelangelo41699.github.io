@@ -202,7 +202,7 @@ export const CAMERA_POSITIONS = {
                 <li>Cloud & DevOps: AWS (S3, EC2), Docker, CI/CD, Redis.</li>
             </ul>
             <div class="contact-buttons">
-                <button onclick="openProject('RESUME')">View Resume (HTML)</button>
+                <button onclick="openProject('RESUME')">View Resume</button>
             </div>
         `
     },
