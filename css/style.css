@@ -406,13 +406,13 @@ canvas {
     top: auto;
     transform: translateX(-50%);
     display: flex;
-    gap: 12px;
+    gap: 10px;
     z-index: 50;
   }
 
   #ui-menu button {
-    padding: 12px 18px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 12px;
   }
 
   /* --- CONTENT CARD --- */
