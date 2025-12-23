@@ -401,25 +401,20 @@ canvas {
   /* --- UI MENU --- */
   #ui-menu {
     position: fixed;
-    bottom: 16px;
+    bottom: 20px;
     left: 50%;
-    transform: translateX(-50%);
-    width: 92vw;
-
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    top: auto;
+    transform: translateX(-75%);
+    display: flex;
     gap: 10px;
-
     z-index: 50;
   }
 
- #ui-menu button {
-    width: 100%;
-    padding: 12px 0;
+  #ui-menu button {
+    padding: 10px 16px;
+    width: auto;
     font-size: 14px;
-    letter-spacing: 0.5px;
   }
-}
 
   /* --- CONTENT CARD --- */
   .content-card {
@@ -511,4 +506,4 @@ canvas {
   #loading-logs {
     font-size: 9px;
   }
-
+}
