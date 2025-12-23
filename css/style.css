@@ -398,21 +398,23 @@ canvas {
     overflow-x: hidden;
   }
 
-  /* --- UI MENU --- */
   #ui-menu {
-    position: fixed;
-    bottom: 20px;
+    bottom: 12px;              /* bring menu slightly closer to bottom */
+    width: 96vw;               /* give buttons a little more room */
     left: 50%;
-    top: auto;
     transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    z-index: 50;
   }
 
   #ui-menu button {
-    padding: 12px 18px;
-    font-size: 14px;
+    margin-right: 8px;         /* was too large */
+    padding: 10px 14px;        /* slightly tighter */
+    font-size: 14px;           /* keep readable */
+    letter-spacing: 0.8px;     /* reduce horizontal spread */
+  }
+
+  /* Remove margin from last button so it doesn't push off-screen */
+  #ui-menu button:last-child {
+    margin-right: 0;
   }
 
   /* --- CONTENT CARD --- */
