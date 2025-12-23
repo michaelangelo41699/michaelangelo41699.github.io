@@ -392,39 +392,67 @@ canvas {
 
 @media (max-width: 768px) {
 
-  /* Allow vertical scrolling on mobile */
+  /* ---------------------------------- */
+  /* GLOBAL MOBILE SAFETY               */
+  /* ---------------------------------- */
+
   body {
     overflow-y: auto;
     overflow-x: hidden;
   }
 
+  canvas {
+    pointer-events: none; /* Never block taps */
+  }
+
+  button {
+    pointer-events: auto;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* ---------------------------------- */
+  /* BOTTOM NAV MENU                    */
+  /* ---------------------------------- */
+
   #ui-menu {
-    bottom: 12px;              /* bring menu slightly closer to bottom */
-    width: 96vw;               /* give buttons a little more room */
+    position: fixed;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
+    width: 96vw;
+    z-index: 50;
+    display: flex;
   }
 
   #ui-menu button {
-    margin-right: 8px;         /* was too large */
-    padding: 10px 14px;        /* slightly tighter */
-    font-size: 14px;           /* keep readable */
-    letter-spacing: 0.8px;     /* reduce horizontal spread */
+    margin-right: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    letter-spacing: 0.8px;
+    flex: 1;
   }
 
-  /* Remove margin from last button so it doesn't push off-screen */
   #ui-menu button:last-child {
     margin-right: 0;
   }
 
-  /* --- CONTENT CARD --- */
-  .content-card {
+  /* ---------------------------------- */
+  /* CONTENT CARD (MAIN HERO CARD)      */
+  /* ---------------------------------- */
+
+  .content-card,
+  .content-card.active {
     width: 90vw;
     max-width: 420px;
     max-height: 75vh;
     padding: 16px;
     border-radius: 10px;
     font-size: 0.95em;
+
+    pointer-events: auto;   /* FORCE TOUCH ENABLE */
+    position: relative;
+    z-index: 20;
   }
 
   .content-card h1 {
@@ -440,7 +468,10 @@ canvas {
     line-height: 1.6;
   }
 
-  /* --- TOUCH FRIENDLY BUTTONS --- */
+  /* ---------------------------------- */
+  /* CTA / CONTACT BUTTONS              */
+  /* ---------------------------------- */
+
   .content-card .contact-buttons button {
     width: 100%;
     padding: 14px;
@@ -448,16 +479,23 @@ canvas {
     font-size: 15px;
   }
 
-  /* --- DATA PROBE --- */
+  /* ---------------------------------- */
+  /* DATA PROBE PANEL                   */
+  /* ---------------------------------- */
+
   .data-probe {
     width: 85vw;
     height: auto;
     max-height: 160px;
     font-size: 0.75em;
     padding: 12px;
+    pointer-events: none; /* purely visual */
   }
 
-  /* --- EXPANDED PROJECT CARD --- */
+  /* ---------------------------------- */
+  /* EXPANDED PROJECT VIEW              */
+  /* ---------------------------------- */
+
   .expanded-card {
     width: 100vw;
     height: 100vh;
@@ -465,6 +503,7 @@ canvas {
     max-height: none;
     border-radius: 0;
     padding: 20px;
+    z-index: 100;
   }
 
   .expanded-card h2 {
@@ -475,14 +514,17 @@ canvas {
     font-size: 2.4em;
     top: 12px;
     right: 18px;
+    pointer-events: auto;
   }
 
-  /* --- SCREENSHOTS STACK VERTICALLY --- */
+  /* ---------------------------------- */
+  /* MEDIA & RESUME                     */
+  /* ---------------------------------- */
+
   .screenshot-container {
     grid-template-columns: 1fr;
   }
 
-  /* --- RESUME --- */
   .resume-container {
     padding: 20px;
   }
@@ -499,7 +541,10 @@ canvas {
     grid-template-columns: 1fr;
   }
 
-  /* --- LOADING SCREEN TEXT SCALE --- */
+  /* ---------------------------------- */
+  /* LOADING SCREEN                     */
+  /* ---------------------------------- */
+
   #status-text {
     font-size: 12px;
   }
