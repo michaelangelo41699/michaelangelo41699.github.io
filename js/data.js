@@ -110,10 +110,12 @@ const ALEXANDRIA_FULL_HTML = `
     </ul>
 
     <div class="screenshot-container">
-        <img src="path/to/alexandria/screenshot1.jpg" alt="Alexandria main dashboard screenshot">
-        <img src="path/to/alexandria/screenshot2.jpg" alt="Alexandria quiz generation UI screenshot">
-        <img src="path/to/alexandria/screenshot3.jpg" alt="Alexandria mobile assessment view screenshot">
+    <img src="../alexandria_screenshot/screenshot1.jpg" alt="Alexandria main dashboard">
+    <img src="../alexandria_screenshot/screenshot2.jpg" alt="Alexandria quiz generation">
+    <img src="../alexandria_screenshot/screenshot3.jpg" alt="Alexandria mobile assessment">
+    <img src="../alexandria_screenshot/screenshot4.jpg" alt="Ask Alexandria Screenshot">
     </div>
+
     <br>
     <div class="contact-buttons">
         <button onclick="window.open('https://github.com/Alexandria-Learning-Ai/alexandria-frontend', '_blank')">View Source Code</button>

@@ -1,20 +1,28 @@
 /* css/style.css */
 
-/* Reset and Global Styles */
+/* ============================= */
+/* 🌍 GLOBAL RESET & CORE STYLES */
+/* ============================= */
 body {
     margin: 0;
-    overflow: hidden;
+    /* Prevents the whole page from bouncing/scrolling on mobile */
+    overflow: hidden; 
     background: black;
     font-family: 'Arial', sans-serif;
     color: white;
+    /* Prevents "pull-to-refresh" on mobile which ruins 3D apps */
+    overscroll-behavior: none; 
 }
 
 /* Ensure canvas elements are displayed */
 canvas {
     display: block;
+    outline: none;
 }
 
-/* UI Menu Overlay (Buttons) */
+/* ============================= */
+/* 🧭 UI MENU OVERLAY (NAV)      */
+/* ============================= */
 #ui-menu {
     position: absolute;
     top: 50px;
@@ -32,6 +40,8 @@ canvas {
     letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.3s ease;
+    /* Ensures buttons are easy to tap on touch screens */
+    touch-action: manipulation; 
 }
 
 #ui-menu button:hover {
@@ -39,14 +49,13 @@ canvas {
     border-color: white;
 }
 
-/* --- CSS2D Content Card Styling (Zoom-to-Reveal Effect) --- */
-
+/* ============================= */
+/* 🧠 CSS2D CONTENT CARD         */
+/* ============================= */
 .content-card {
     /* Dimensions and visual style */
-    width: 380px; /* Slight increase for better text wrapping */
-    
-    /* CRITICAL FIX: Increased max-height to ensure the PROJECTS content fits */
-    max-height: 500px; 
+    width: 380px;
+    max-height: 500px; /* Limits height to keep brain visible */
     
     padding: 20px;
     background: rgba(10, 10, 10, 0.85); 
@@ -56,28 +65,24 @@ canvas {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     text-align: left;
     
-    /* Allow scrolling if content still overflows (safer) */
+    /* Allow scrolling inside the card if text is long */
     overflow-y: auto; 
     
     /* Animation Preparation */
     will-change: transform, opacity; 
-    
-    /* Initial state (Set by JS, used for the starting opacity) */
     opacity: 0;
-
-    /* CRITICAL UPDATE: Uses a custom bezier curve for a more dramatic pop/slide effect. */
     transition: opacity 1.5s ease-out, transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
     
+    /* Start non-interactive so clicks pass through to 3D model */
     pointer-events: none; 
 }
 
 .content-card.active {
-    /* Final state: Card is fully visible and slides forward to z=0 */
     opacity: 1;
-    pointer-events: auto; 
+    pointer-events: auto; /* Re-enable interaction when visible */
 }
 
-/* Card Typography */
+/* Typography */
 .content-card h1 { 
     font-size: 2.2em;
     font-weight: 300;
@@ -111,32 +116,27 @@ canvas {
     background: #66b3ff;
 }
 
-/* --- NEW: Data Probe Panel Styling (Idea 2) --- */
-
+/* ============================= */
+/* 📡 DATA PROBE PANEL           */
+/* ============================= */
 .data-probe {
-    /* Dimensions and style */
     width: 280px;
     height: 180px;
     padding: 15px;
-    
-    /* Technical aesthetics */
     background: rgba(0, 0, 0, 0.7);
-    border: 1px solid #66ccff; /* Blue technical border */
+    border: 1px solid #66ccff;
     border-radius: 4px;
-    box-shadow: 0 0 10px rgba(102, 204, 255, 0.5); /* Subtle blue glow */
+    box-shadow: 0 0 10px rgba(102, 204, 255, 0.5);
     
-    /* Typography */
-    font-family: 'Courier New', monospace; /* Monospace for code/data */
+    font-family: 'Courier New', monospace;
     font-size: 0.85em;
-    color: #33ff99; /* Bright green text for data output */
+    color: #33ff99;
     line-height: 1.4;
     overflow: hidden; 
     text-align: left;
 
-    /* Transition for appearance (must be fast) */
     opacity: 0;
     transition: opacity 0.5s ease-in;
-    
     pointer-events: none;
     z-index: 100;
 }
@@ -145,7 +145,6 @@ canvas {
     opacity: 1;
 }
 
-/* Style for the progress bar */
 .data-probe .progress-bar {
     height: 6px;
     background: rgba(51, 255, 153, 0.2);
@@ -155,32 +154,33 @@ canvas {
 
 .data-probe .progress-fill {
     height: 100%;
-    width: 0%; /* Starts at 0 */
+    width: 0%;
     background: #33ff99;
-    transition: width 0.7s ease-out; /* Animation for the fill */
+    transition: width 0.7s ease-out;
 }
 
-/* --- NEW: Expanded Project Card Styling --- */
-
+/* ============================= */
+/* 📂 EXPANDED PROJECT MODAL     */
+/* ============================= */
 .expanded-card {
-    position: fixed; /* Fix to viewport */
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center it */
+    transform: translate(-50%, -50%);
     
-    width: 90vw; /* Take up most of the screen width */
-    max-width: 900px; /* Limit for very large screens */
-    height: 90vh; /* Take up most of the screen height */
+    width: 90vw;
+    max-width: 900px;
+    height: 90vh;
     max-height: 800px;
     
     padding: 30px;
-    background: rgba(0, 0, 0, 0.95); /* Make it darker to stand out */
-    border: 3px solid #66ccff; /* Stronger technical border */
+    background: rgba(0, 0, 0, 0.95);
+    border: 3px solid #66ccff;
     border-radius: 12px;
-    box-shadow: 0 0 40px rgba(102, 204, 255, 0.7); /* Stronger glow */
+    box-shadow: 0 0 40px rgba(102, 204, 255, 0.7);
     
-    z-index: 999; /* Ensure it is on top of everything */
-    overflow-y: auto; /* Allow scrolling for long content */
+    z-index: 999;
+    overflow-y: auto; /* Scrollable content inside the fixed modal */
     
     opacity: 0;
     pointer-events: none;
@@ -193,7 +193,7 @@ canvas {
 }
 
 .expanded-card h2 {
-    color: #33ff99; /* Green for the project title */
+    color: #33ff99;
     border-bottom: 1px solid rgba(153, 204, 255, 0.2);
     padding-bottom: 10px;
     margin-bottom: 20px;
@@ -210,113 +210,90 @@ canvas {
 }
 
 .expanded-card .close-button:hover {
-    color: #ff3399; /* Pink/red highlight for close */
+    color: #ff3399;
 }
 
-/* Styling for the screenshot area */
+/* ============================= */
+/* 📸 SCREENSHOT SHOWCASE        */
+/* ============================= */
 .screenshot-container {
-    margin-top: 20px;
+    margin-top: 24px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    perspective: 1200px;
 }
 
 .screenshot-container img {
     width: 100%;
     height: auto;
-    border: 1px solid rgba(153, 204, 255, 0.5);
-    border-radius: 5px;
-    opacity: 0.8;
-    transition: opacity 0.2s;
+    border-radius: 12px;
+    border: 5px solid rgb(255, 255, 255);
+    background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    opacity: 0.88;
+    transform: translateZ(0) scale(1);
+    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s ease, opacity 0.25s ease;
 }
 
 .screenshot-container img:hover {
     opacity: 1;
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(153, 204, 255, 0.25);
 }
 
-/* --- Resume Styling for Expanded Card --- */
+@media (hover: none) {
+    .screenshot-container img {
+        opacity: 0.95;
+        transform: none;
+    }
+}
 
+/* ============================= */
+/* 📄 RESUME STYLING             */
+/* ============================= */
 .resume-container {
     padding: 30px;
-    max-width: 850px; /* Standard resume width */
+    max-width: 850px;
     margin: 0 auto;
-    color: #f0f0f0; /* Light text on dark background */
+    color: #f0f0f0;
 }
 
 .resume-container header {
-    border-bottom: 2px solid #33ff99; /* Green accent line */
+    border-bottom: 2px solid #33ff99;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
 
-.resume-container h1 {
-    font-size: 2.5em;
-    margin-bottom: 5px;
-    color: #99ccff; /* Blue highlight */
-}
+.resume-container h1 { font-size: 2.5em; margin-bottom: 5px; color: #99ccff; }
+.resume-container h2 { font-size: 1.2em; font-weight: 400; margin-top: 0; color: #ccc; }
+.contact-info a { color: #99ccff; text-decoration: none; margin-right: 15px; }
 
-.resume-container h2 {
-    font-size: 1.2em;
-    font-weight: 400;
-    margin-top: 0;
-    color: #ccc;
-}
-
-.contact-info a {
-    color: #99ccff;
-    text-decoration: none;
-    margin-right: 15px;
-}
-
-.resume-container section {
-    margin-bottom: 25px;
-}
-
+.resume-container section { margin-bottom: 25px; }
 .resume-container h3 {
     font-size: 1.4em;
-    color: #33ff99; /* Green accent for section headers */
+    color: #33ff99;
     border-bottom: 1px solid #444;
     padding-bottom: 5px;
     margin-bottom: 15px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
-.resume-container .entry {
-    margin-bottom: 15px;
-}
-
-.resume-container .entry h4 {
-    font-size: 1.1em;
-    color: #f0f0f0;
-    margin-bottom: 5px;
-}
-
-.resume-container ul {
-    list-style: square;
-    margin-left: 20px;
-    padding-left: 0;
-}
-
-.resume-container ul li {
-    margin-bottom: 5px;
-}
+.resume-container .entry h4 { font-size: 1.1em; color: #f0f0f0; margin-bottom: 5px; }
+.resume-container ul { list-style: square; margin-left: 20px; padding-left: 0; }
+.resume-container ul li { margin-bottom: 5px; }
 
 .skills-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
+.skills-grid h4 { color: #99ccff; margin-bottom: 5px; }
+.skills-grid p { font-size: 0.95em; }
 
-.skills-grid h4 {
-    color: #99ccff;
-    margin-bottom: 5px;
-}
-
-.skills-grid p {
-    font-size: 0.95em;
-}
-
+/* ============================= */
+/* ⏳ LOADING SCREEN             */
+/* ============================= */
 #loading-screen {
     position: fixed;
     top: 0;
@@ -332,46 +309,11 @@ canvas {
     font-family: 'Courier New', monospace;
     transition: opacity 1s ease-out;
 }
-
-.loader-content {
-    width: 300px;
-    text-align: center;
-}
-
-#status-text {
-    color: #33ff99;
-    font-size: 14px;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
-
-.progress-container {
-    width: 100%;
-    height: 2px;
-    background: rgba(51, 255, 153, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-#progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #33ff99;
-    box-shadow: 0 0 10px #33ff99;
-    transition: width 0.3s ease;
-}
-
-#loading-logs {
-    margin-top: 20px;
-    font-size: 10px;
-    color: #66ccff;
-    text-align: left;
-    height: 50px;
-    overflow: hidden;
-    opacity: 0.7;
-}
-
-/* A scanline effect across the screen */
+.loader-content { width: 300px; text-align: center; }
+#status-text { color: #33ff99; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
+.progress-container { width: 100%; height: 2px; background: rgba(51, 255, 153, 0.1); border-radius: 2px; overflow: hidden; }
+#progress-fill { width: 0%; height: 100%; background: #33ff99; box-shadow: 0 0 10px #33ff99; transition: width 0.3s ease; }
+#loading-logs { margin-top: 20px; font-size: 10px; color: #66ccff; text-align: left; height: 50px; overflow: hidden; opacity: 0.7; }
 .scanner-line {
     position: absolute;
     width: 100%;
@@ -380,176 +322,90 @@ canvas {
     top: 0;
     animation: scan 3s linear infinite;
 }
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-@keyframes scan {
-    0% { top: 0; }
-    100% { top: 100%; }
-}
-
-/* ============================= */
-/* 📱 MOBILE SCREEN OPTIMIZATION */
-/* ============================= */
+/* ==================================== */
+/* 📱 MOBILE OPTIMIZATION (THE FIX)     */
+/* ==================================== */
 
 @media (max-width: 768px) {
 
-  /* ---------------------------------- */
-  /* GLOBAL MOBILE SAFETY               */
-  /* ---------------------------------- */
+    /* GLOBAL MOBILE SAFETY */
+    body {
+        /* Keep body locked to prevent 'bounce', scroll only inside elements */
+        overflow: hidden; 
+    }
 
-  body {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+    canvas {
+        /* CRITICAL FIX: Allow pointer events so users can rotate the brain */
+        pointer-events: auto; 
+        /* Disables browser zooming/panning on the canvas, purely for rotation */
+        touch-action: none; 
+    }
 
-  canvas {
-    pointer-events: none; /* Never block taps */
-  }
+    /* BOTTOM NAV MENU */
+    #ui-menu {
+        position: fixed;
+        bottom: 20px; /* Safe distance from bottom edge */
+        left: 50%;
+        top: auto; /* Reset top */
+        transform: translateX(-50%);
+        width: 90vw;
+        z-index: 50;
+        display: flex;
+        justify-content: center;
+        background: rgba(0,0,0,0.5); /* Slight backing for readability */
+        border-radius: 20px;
+        padding: 5px;
+        backdrop-filter: blur(4px);
+    }
 
-  button {
-    pointer-events: auto;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
+    #ui-menu button {
+        margin: 0 5px;
+        padding: 12px 10px;
+        font-size: 13px;
+        flex: 1;
+        text-align: center;
+        border: none;
+        border-right: 1px solid rgba(255,255,255,0.2);
+    }
+    #ui-menu button:last-child { border-right: none; }
 
-  /* ---------------------------------- */
-  /* BOTTOM NAV MENU                    */
-  /* ---------------------------------- */
+    /* CONTENT CARD (MAIN HERO CARD) */
+    .content-card,
+    .content-card.active {
+        width: 85vw; /* Fit screen width */
+        max-width: none;
+        max-height: 60vh; /* Don't cover the whole brain */
+        padding: 15px;
+        font-size: 0.9em;
+        pointer-events: auto; /* Allow scrolling text */
+    }
 
-  #ui-menu {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 96vw;
-    z-index: 50;
-    display: flex;
-  }
+    .content-card h1 { font-size: 1.5em; }
+    .content-card h2 { font-size: 1.3em; }
 
-  #ui-menu button {
-    margin-right: 8px;
-    padding: 10px 14px;
-    font-size: 14px;
-    letter-spacing: 0.8px;
-    flex: 1;
-  }
+    /* EXPANDED PROJECT VIEW */
+    .expanded-card {
+        width: 100vw;
+        height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+        border-radius: 0;
+        padding: 15px;
+        border: none;
+        top: 0; 
+        left: 0;
+        transform: none;
+    }
+    
+    /* Ensure close button is reachable */
+    .expanded-card .close-button {
+        top: 15px;
+        right: 15px;
+        font-size: 2.5em;
+        padding: 10px; /* larger touch target */
+    }
 
-  #ui-menu button:last-child {
-    margin-right: 0;
-  }
-
-  /* ---------------------------------- */
-  /* CONTENT CARD (MAIN HERO CARD)      */
-  /* ---------------------------------- */
-
-  .content-card,
-  .content-card.active {
-    width: 90vw;
-    max-width: 420px;
-    max-height: 75vh;
-    padding: 16px;
-    border-radius: 10px;
-    font-size: 0.95em;
-
-    pointer-events: auto;   /* FORCE TOUCH ENABLE */
-    position: relative;
-    z-index: 20;
-  }
-
-  .content-card h1 {
-    font-size: 1.6em;
-  }
-
-  .content-card h2 {
-    font-size: 1.4em;
-  }
-
-  .content-card p {
-    font-size: 0.95em;
-    line-height: 1.6;
-  }
-
-  /* ---------------------------------- */
-  /* CTA / CONTACT BUTTONS              */
-  /* ---------------------------------- */
-
-  .content-card .contact-buttons button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    font-size: 15px;
-  }
-
-  /* ---------------------------------- */
-  /* DATA PROBE PANEL                   */
-  /* ---------------------------------- */
-
-  .data-probe {
-    width: 85vw;
-    height: auto;
-    max-height: 160px;
-    font-size: 0.75em;
-    padding: 12px;
-    pointer-events: none; /* purely visual */
-  }
-
-  /* ---------------------------------- */
-  /* EXPANDED PROJECT VIEW              */
-  /* ---------------------------------- */
-
-  .expanded-card {
-    width: 100vw;
-    height: 100vh;
-    max-width: none;
-    max-height: none;
-    border-radius: 0;
-    padding: 20px;
-    z-index: 100;
-  }
-
-  .expanded-card h2 {
-    font-size: 1.4em;
-  }
-
-  .expanded-card .close-button {
-    font-size: 2.4em;
-    top: 12px;
-    right: 18px;
-    pointer-events: auto;
-  }
-
-  /* ---------------------------------- */
-  /* MEDIA & RESUME                     */
-  /* ---------------------------------- */
-
-  .screenshot-container {
-    grid-template-columns: 1fr;
-  }
-
-  .resume-container {
-    padding: 20px;
-  }
-
-  .resume-container h1 {
-    font-size: 1.8em;
-  }
-
-  .resume-container h3 {
-    font-size: 1.2em;
-  }
-
-  .skills-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* ---------------------------------- */
-  /* LOADING SCREEN                     */
-  /* ---------------------------------- */
-
-  #status-text {
-    font-size: 12px;
-  }
-
-  #loading-logs {
-    font-size: 9px;
-  }
+    /* RESUME & GRIDS */
+    .skills-grid { grid-template-columns: 1fr; }
+    .screenshot-container { grid-template-columns: 1fr; }
 }
