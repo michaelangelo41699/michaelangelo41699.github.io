@@ -404,15 +404,14 @@ canvas {
     bottom: 20px;
     left: 50%;
     top: auto;
-    transform: translateX(-75%);
+    transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     z-index: 50;
   }
 
   #ui-menu button {
-    padding: 10px 16px;
-    width: auto;
+    padding: 12px 18px;
     font-size: 14px;
   }
 
