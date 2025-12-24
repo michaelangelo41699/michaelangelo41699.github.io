@@ -214,41 +214,91 @@ canvas {
 }
 
 /* ============================= */
-/* 📸 SCREENSHOT SHOWCASE        */
+/* 📸 SCREENSHOT SHOWCASE (FILMSTRIP) */
 /* ============================= */
+
 .screenshot-container {
-    margin-top: 24px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 18px;
-    perspective: 1200px;
+    margin-top: 25px;
+    
+    /* Layout: Horizontal Flex Row */
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    
+    /* Enable Horizontal Scrolling */
+    overflow-x: auto;
+    overflow-y: hidden;
+    
+    /* Padding to allow hover effects not to get clipped */
+    padding: 20px 10px; 
+    
+    /* Scroll Snapping for a premium "app-like" feel */
+    scroll-snap-type: x mandatory;
+    
+    /* Firefox Scrollbar Styling */
+    scrollbar-width: thin;
+    scrollbar-color: #33ff99 rgba(0,0,0,0.3);
 }
 
+/* Custom Scrollbar for Chrome/Safari/Edge */
+.screenshot-container::-webkit-scrollbar {
+    height: 8px; /* Slim scrollbar */
+}
+.screenshot-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+.screenshot-container::-webkit-scrollbar-thumb {
+    background: #33ff99; /* Tech Green Handle */
+    border-radius: 4px;
+    border: 1px solid #000;
+}
+
+/* Individual Image Styling */
 .screenshot-container img {
-    width: 100%;
-    height: auto;
+    /* Fixed height constraints the layout. 
+       450px is good for mobile UI screenshots. */
+    height: 450px; 
+    width: auto; /* Width adjusts automatically */
+    
+    /* Prevent images from squishing */
+    flex-shrink: 0;
+    
+    /* Styling */
     border-radius: 12px;
-    border: 5px solid rgb(255, 255, 255);
-    background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-    opacity: 0.88;
-    transform: translateZ(0) scale(1);
-    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s ease, opacity 0.25s ease;
+    border: 2px solid rgba(153, 204, 255, 0.3); /* Tech Blue border */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    
+    /* Snapping alignment */
+    scroll-snap-align: center;
+    
+    /* Transitions */
+    transition: all 0.3s ease;
+    opacity: 0.85;
+    cursor: grab;
 }
 
+/* Hover Effect - Pop out slightly */
 .screenshot-container img:hover {
     opacity: 1;
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 20px rgba(153, 204, 255, 0.25);
+    transform: scale(1.02);
+    border-color: #33ff99; /* Green glow on hover */
+    box-shadow: 0 8px 25px rgba(51, 255, 153, 0.2);
+    z-index: 10;
 }
 
-@media (hover: none) {
+/* Active State (while clicking) */
+.screenshot-container img:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+/* --- Mobile Adjustments --- */
+@media (max-width: 768px) {
     .screenshot-container img {
-        opacity: 0.95;
-        transform: none;
+        height: 350px; /* Slightly smaller on phones */
     }
 }
-
 /* ============================= */
 /* 📄 RESUME STYLING             */
 /* ============================= */
@@ -330,7 +380,9 @@ canvas {
 
 @media (max-width: 768px) {
 
-    /* GLOBAL MOBILE SAFETY */
+    /* ---------------------------------- */
+    /* GLOBAL MOBILE SAFETY               */
+    /* ---------------------------------- */
     body {
         /* Keep body locked to prevent 'bounce', scroll only inside elements */
         overflow: hidden; 
@@ -343,7 +395,9 @@ canvas {
         touch-action: none; 
     }
 
-    /* BOTTOM NAV MENU */
+    /* ---------------------------------- */
+    /* BOTTOM NAV MENU                    */
+    /* ---------------------------------- */
     #ui-menu {
         position: fixed;
         bottom: 20px; /* Safe distance from bottom edge */
@@ -371,7 +425,9 @@ canvas {
     }
     #ui-menu button:last-child { border-right: none; }
 
-    /* CONTENT CARD (MAIN HERO CARD) */
+    /* ---------------------------------- */
+    /* CONTENT CARD (MAIN HERO CARD)      */
+    /* ---------------------------------- */
     .content-card,
     .content-card.active {
         width: 85vw; /* Fit screen width */
@@ -385,7 +441,9 @@ canvas {
     .content-card h1 { font-size: 1.5em; }
     .content-card h2 { font-size: 1.3em; }
 
-    /* EXPANDED PROJECT VIEW */
+    /* ---------------------------------- */
+    /* EXPANDED PROJECT VIEW              */
+    /* ---------------------------------- */
     .expanded-card {
         width: 100vw;
         height: 100dvh; /* Use dynamic viewport height for mobile browsers */
@@ -405,7 +463,39 @@ canvas {
         padding: 10px; /* larger touch target */
     }
 
-    /* RESUME & GRIDS */
-    .skills-grid { grid-template-columns: 1fr; }
-    .screenshot-container { grid-template-columns: 1fr; }
+    /* ---------------------------------- */
+    /* RESUME & MEDIA (UPDATED FIX)       */
+    /* ---------------------------------- */
+    
+    .skills-grid { 
+        grid-template-columns: 1fr; 
+    }
+
+    /* FIX: Force horizontal scrolling on mobile */
+    .screenshot-container {
+        display: flex;       /* Use Flexbox, NOT Grid */
+        flex-direction: row; /* Horizontal alignment */
+        overflow-x: auto;    /* Enable scrolling */
+        gap: 15px;           /* Spacing between images */
+        
+        /* Disable the desktop grid styles */
+        grid-template-columns: none; 
+        
+        /* Smooth scrolling for iOS */
+        -webkit-overflow-scrolling: touch; 
+        scroll-snap-type: x mandatory;
+    }
+
+    /* FIX: Resize images for mobile screens */
+    .screenshot-container img {
+        height: 250px;       /* Smaller height for phones */
+        width: auto;         /* Auto width to keep aspect ratio */
+        scroll-snap-align: center; /* Snap to center on stop */
+        flex-shrink: 0;      /* Prevent squishing */
+    }
+
+    /* Adjust resume padding */
+    .resume-container {
+        padding: 15px;
+    }
 }
