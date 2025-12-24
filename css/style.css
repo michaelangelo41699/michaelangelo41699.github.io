@@ -375,7 +375,7 @@ canvas {
 @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
 /* ==================================== */
-/* 📱 MOBILE OPTIMIZATION (THE FIX)     */
+/* 📱 MOBILE OPTIMIZATION (FINAL FIX)   */
 /* ==================================== */
 
 @media (max-width: 768px) {
@@ -384,14 +384,11 @@ canvas {
     /* GLOBAL MOBILE SAFETY               */
     /* ---------------------------------- */
     body {
-        /* Keep body locked to prevent 'bounce', scroll only inside elements */
-        overflow: hidden; 
+        overflow: hidden; /* Prevent body scroll */
     }
 
     canvas {
-        /* CRITICAL FIX: Allow pointer events so users can rotate the brain */
-        pointer-events: auto; 
-        /* Disables browser zooming/panning on the canvas, purely for rotation */
+        pointer-events: auto; /* Allow brain rotation */
         touch-action: none; 
     }
 
@@ -400,15 +397,15 @@ canvas {
     /* ---------------------------------- */
     #ui-menu {
         position: fixed;
-        bottom: 20px; /* Safe distance from bottom edge */
+        bottom: 20px; 
         left: 50%;
-        top: auto; /* Reset top */
+        top: auto; 
         transform: translateX(-50%);
         width: 90vw;
         z-index: 50;
         display: flex;
         justify-content: center;
-        background: rgba(0,0,0,0.5); /* Slight backing for readability */
+        background: rgba(0,0,0,0.5); 
         border-radius: 20px;
         padding: 5px;
         backdrop-filter: blur(4px);
@@ -430,72 +427,97 @@ canvas {
     /* ---------------------------------- */
     .content-card,
     .content-card.active {
-        width: 85vw; /* Fit screen width */
+        width: 85vw; 
         max-width: none;
-        max-height: 60vh; /* Don't cover the whole brain */
+        max-height: 55vh; /* Reduce height slightly to see more brain */
         padding: 15px;
         font-size: 0.9em;
-        pointer-events: auto; /* Allow scrolling text */
+        pointer-events: auto; 
+        box-sizing: border-box; /* Prevents width overflow */
     }
 
     .content-card h1 { font-size: 1.5em; }
     .content-card h2 { font-size: 1.3em; }
 
     /* ---------------------------------- */
-    /* EXPANDED PROJECT VIEW              */
+    /* EXPANDED PROJECT VIEW (THE FIX)    */
     /* ---------------------------------- */
     .expanded-card {
-        width: 100vw;
-        height: 100dvh; /* Use dynamic viewport height for mobile browsers */
-        border-radius: 0;
-        padding: 15px;
-        border: none;
+        width: 100%;
+        height: 100dvh; /* Dynamic viewport height */
         top: 0; 
         left: 0;
         transform: none;
+        
+        border-radius: 0;
+        border: none;
+        background: rgba(0, 0, 0, 0.98); /* Almost solid black for readability */
+        
+        /* Padding: Top, Right, Bottom (Large to allow scroll), Left */
+        padding: 60px 15px 100px 15px; 
+        box-sizing: border-box; /* CRITICAL: Keeps width at 100% */
+        
+        overflow-y: auto; /* Force scroll */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
     }
     
-    /* Ensure close button is reachable */
+    /* Sticky Close Button with Background */
     .expanded-card .close-button {
+        position: fixed; /* Keeps it stuck to top corner */
         top: 15px;
         right: 15px;
-        font-size: 2.5em;
-        padding: 10px; /* larger touch target */
+        font-size: 2em;
+        width: 40px;
+        height: 40px;
+        background: rgba(0,0,0,0.8); /* Dark circle behind X */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1002;
+        border: 1px solid #33ff99;
     }
 
     /* ---------------------------------- */
-    /* RESUME & MEDIA (UPDATED FIX)       */
+    /* RESUME & TEXT WRAPPING FIXES       */
     /* ---------------------------------- */
+    .resume-container {
+        padding: 0; /* Remove internal padding on mobile */
+        width: 100%;
+    }
+
+    /* Fix long URLs breaking the screen width */
+    .contact-info span {
+        display: block; /* Stack emails/links vertically */
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
     
+    a {
+        word-break: break-word; /* Force long links to wrap */
+        overflow-wrap: break-word;
+    }
+
     .skills-grid { 
         grid-template-columns: 1fr; 
     }
 
-    /* FIX: Force horizontal scrolling on mobile */
+    /* Horizontal Filmstrip for Screenshots */
     .screenshot-container {
-        display: flex;       /* Use Flexbox, NOT Grid */
-        flex-direction: row; /* Horizontal alignment */
-        overflow-x: auto;    /* Enable scrolling */
-        gap: 15px;           /* Spacing between images */
-        
-        /* Disable the desktop grid styles */
-        grid-template-columns: none; 
-        
-        /* Smooth scrolling for iOS */
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 15px;
+        grid-template-columns: none;
         -webkit-overflow-scrolling: touch; 
         scroll-snap-type: x mandatory;
+        padding-bottom: 10px;
     }
 
-    /* FIX: Resize images for mobile screens */
     .screenshot-container img {
-        height: 250px;       /* Smaller height for phones */
-        width: auto;         /* Auto width to keep aspect ratio */
-        scroll-snap-align: center; /* Snap to center on stop */
-        flex-shrink: 0;      /* Prevent squishing */
-    }
-
-    /* Adjust resume padding */
-    .resume-container {
-        padding: 15px;
+        height: 220px;
+        width: auto;
+        scroll-snap-align: center;
+        flex-shrink: 0;
     }
 }
