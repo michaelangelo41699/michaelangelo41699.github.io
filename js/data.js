@@ -137,6 +137,14 @@ const GUARDIAN_FULL_HTML = `
         <li>Backend Deployment: Deployed backend services supporting inference, aggregation, and daily learning jobs, with health checks, logging, and failure handling.</li>
     </ul>
 
+    <div class="screenshot-container">
+    <img src="../ShieldAI_screenshot/ShieldAIapp.png" alt="Shield Log In">
+    <img src="../ShieldAI_screenshot/ShieldAIapp2.png" alt="Shield AI Onboarding">
+    <img src="../ShieldAI_screenshot/ShieldAIapp3.png" alt="Shield AI Home">
+    <img src="../ShieldAI_screenshot/ShieldAIapp4.png" alt="Shield AI Goal">
+    <img src="../ShieldAI_screenshot/ShieldAIapp5.png" alt="Shield AI Analyzer">
+    </div>
+
     <div class="contact-buttons">
         <button onclick="window.open('path/to/guardian-live-demo(coming soon)', '_blank')">View Live Demo</button>
     </div>
