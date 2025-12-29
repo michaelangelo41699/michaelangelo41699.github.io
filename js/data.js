@@ -146,7 +146,7 @@ const GUARDIAN_FULL_HTML = `
     </div>
 
     <div class="contact-buttons">
-        <button onclick="window.open('path/to/guardian-live-demo(coming soon)', '_blank')">View Live Demo</button>
+        <button onclick="window.open('https://github.com/michaelangelo41699/shield-ai', '_blank')">View Live Demo</button>
     </div>
 `;
 
