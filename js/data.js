@@ -11,7 +11,7 @@ const RESUME_HTML = `
     <div class="resume-container">
         <header>
             <h1>MICHAEL GONZALEZ <span style="font-size: 0.8em; color: #99ccff;">/ McFly</span></h1>
-            <h2>Information Systems & Software Developer</h2>
+            <h2>Information Systems & Software Developer(Student)</h2>
             <div class="contact-info">
                 <span>Email: <a href="mailto:michaelangelo41699@gmail.com">michaelangelo41699@gmail.com</a></span>
                 <span>| GitHub: <a href="https://github.com/michaelangelo41699" target="_blank">github.com/michaelangelo41699</a></span>
@@ -124,7 +124,7 @@ const ALEXANDRIA_FULL_HTML = `
 
 // 3. Full HTML for Guardian (Restored)
 const GUARDIAN_FULL_HTML = `
-    <h2>Guardian (Privacy-First Behavioral Intelligence & Coaching System)</h2>
+    <h2>Shield-AI (Privacy-First Behavioral Intelligence & Coaching System)</h2>
     <p>Design and implementation of a privacy-preserving behavioral analysis system that observes real user interactions to infer patterns, emotional drift, and goal misalignment—without relying on explicit user prompts.</p>
     
     <h3>Key System Achievements:</h3>
@@ -146,7 +146,7 @@ const GUARDIAN_FULL_HTML = `
     </div>
 
     <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/michaelangelo41699/shield-ai', '_blank')">View Live Demo</button>
+        <button onclick="window.open('https://github.com/michaelangelo41699/shield-ai', '_blank')">View Source Code</button>
     </div>
 `;
 
@@ -189,7 +189,7 @@ export const CAMERA_POSITIONS = {
         offset: ['-100%', '-50%'],
         html: `
             <h1>Michael Gonzalez</h1>
-            <h2>Cognitive Engineer & Developer</h2>
+            <h2>Cognitive Engineer & Developer (Student)</h2>
             <p>Architecting digital solutions at the intersection of human design and system processing. My work is driven by a deep understanding of full-stack complexity and user experience optimization.</p>
             <div class="contact-buttons">
                 <button onclick="navigateTo('PROJECTS')">View Portfolio</button>
@@ -239,7 +239,7 @@ export const CAMERA_POSITIONS = {
                 
                 <li onclick="openProject('GUARDIAN')" 
                     style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                     Guardian (Behavioral Intelligence): Privacy-preserving system inferring user patterns and emotional drift. [Project Details]
+                     Shield/Guardian (Behavioral Intelligence): Privacy-preserving system inferring user patterns and emotional drift. [Project Details]
                 </li>
                 <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
                     <li>Focus: Privacy-aware ML and On-device data isolation.</li>
