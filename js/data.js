@@ -189,7 +189,7 @@ export const CAMERA_POSITIONS = {
         offset: ['-100%', '-50%'],
         html: `
             <h1>Michael Gonzalez</h1>
-            <h2>Cognitive Engineer & Developer (Student)</h2>
+            <h2>Computer Science Student</h2>
             <p>Architecting digital solutions at the intersection of human design and system processing. My work is driven by a deep understanding of full-stack complexity and user experience optimization.</p>
             <div class="contact-buttons">
                 <button onclick="navigateTo('PROJECTS')">View Portfolio</button>
