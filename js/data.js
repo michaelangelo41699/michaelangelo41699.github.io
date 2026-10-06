@@ -150,6 +150,35 @@ const GUARDIAN_FULL_HTML = `
     </div>
 `;
 
+// 4. Full HTML for Joy
+const JOY_FULL_HTML = `
+    <h2>Joy (Always-On AI Life Assistant)</h2>
+    <p>The evolution of Shield-AI into a full personal operating system: a desktop-first AI assistant that observes activity, remembers context, tracks goals and identity drift, and acts on the user's behalf through voice, browser, phone, and device control. Joy runs across desktop, mobile, and the cloud from a single backend.</p>
+    
+    <h3>Key System Achievements:</h3>
+    <ul>
+        <li>Multi-Client Architecture: Electron + React desktop app, React Native (Expo) mobile app, and a browser extension, all synced through a Cloudflare Workers backend with Durable Objects (one per user) and a D1 database.</li>
+        <li>Long-Term Memory: Joy builds a categorized memory (preferences, habits, people, goals) from conversation and observed behavior, with search, manual editing, and cloud sync.</li>
+        <li>Goals & Identity Drift: Detects objectives mentioned in conversation for one-click promotion, and tracks identity goals ("be a patient parent") on an aligned-to-drifting scale with 6-week trend lines.</li>
+        <li>Roadmaps: Generates multi-month plans broken into dependent tasks that unlock as earlier steps are completed, with progress tracking and a "what's next" queue.</li>
+        <li>Joy's Desk: An inbox of awareness items plus AI-generated research reports, study plans, and data views delivered as cards.</li>
+        <li>Behavioral Suggestions: A browser extension feeds activity signals into "Fuel" suggestions the user can accept or reject, which trains future recommendations.</li>
+        <li>Voice & Agentic Control: Real-time voice pipeline (AudioWorklet capture → edge VoiceGateway → speech models), a computer-use agent for screenshot-driven desktop control, phone calls to saved contacts, and smart device control.</li>
+        <li>Native Performance: Rust (NAPI-RS) module for low-latency audio playback and image hashing inside Electron.</li>
+    </ul>
+
+    <div class="screenshot-container wide">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215859.png" alt="Joy's Desk inbox and generated reports">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215455.png" alt="Joy goals noticed in conversation">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215357.png" alt="Identity tracking with drift detection">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215548.png" alt="Roadmaps overview">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215653.png" alt="Roadmap progress and next tasks">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20215938.png" alt="Joy's Memory">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20220018.png" alt="Fuel suggestions observed from browser activity">
+    <img src="../joyScreenshots/Screenshot%202026-10-05%20220103.png" alt="Joy's Phone Book and device control">
+    </div>
+`;
+
 const PORTFOLIO_FULL_HTML = `
     <h2>Interactive 3D Portfolio (Cognitive Systems Interface)</h2>
     <p>A high-performance web experience built to demonstrate the intersection of Information Systems and 3D Creative Coding. This project focuses on spatial UI/UX and efficient asset management.</p>
@@ -169,10 +198,11 @@ const PORTFOLIO_FULL_HTML = `
 
 
 // --- Project Details Lookup Table ---
-// CRITICAL: All three full HTML constants are correctly mapped here.
+// CRITICAL: All full HTML constants are correctly mapped here.
 export const PROJECT_DETAILS = {
     ALEXANDRIA: ALEXANDRIA_FULL_HTML,
     GUARDIAN: GUARDIAN_FULL_HTML,
+    JOY: JOY_FULL_HTML,
     PORTFOLIO: PORTFOLIO_FULL_HTML,
     RESUME: RESUME_HTML,
 };
@@ -244,6 +274,15 @@ export const CAMERA_POSITIONS = {
                 <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
                     <li>Focus: Privacy-aware ML and On-device data isolation.</li>
                     <li>Architected dual-pipeline logging for temporal signals.</li>
+                </ul>
+                
+                <li onclick="openProject('JOY')" 
+                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
+                     Joy (AI Life Assistant): Always-on assistant with long-term memory, goal & identity tracking, and voice/agentic control. [Project Details]
+                </li>
+                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
+                    <li>Electron + React desktop, React Native mobile, browser extension.</li>
+                    <li>Cloudflare Workers, Durable Objects, D1; Rust native module.</li>
                 </ul>
                 
                 <li onclick="openProject('PORTFOLIO')" 
