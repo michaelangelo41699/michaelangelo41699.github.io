@@ -520,4 +520,9 @@ canvas {
         scroll-snap-align: center;
         flex-shrink: 0;
     }
+    /* Wide desktop screenshots: cap width so each fits the phone screen */
+    .screenshot-container.wide img {
+        height: auto;
+        width: 85vw;
+    }
 }
