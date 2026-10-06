@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Student Portfolio</title>
+    <title>Michael Gonzalez | Portfolio</title>
     
     <script type="importmap">
         {
@@ -98,7 +98,7 @@
 <div id="loading-screen">
     <div class="loader-content">
         <div class="scanner-line"></div>
-        <h2 id="status-text">SYSTEM INITIALIZING...</h2>
+        <h2 id="status-text">Loading...</h2>
         <div class="progress-container">
             <div id="progress-fill"></div>
         </div>
@@ -186,13 +186,13 @@
             const pct = (itemsLoaded / itemsTotal) * 100;
             progressFill.style.width = pct + '%';
             const p = document.createElement('div');
-            p.textContent = `> LOADED: ${url.split('/').pop()}`;
+            p.textContent = `loaded ${url.split('/').pop()}`;
             logsContainer.appendChild(p);
             if (logsContainer.children.length > 4) logsContainer.removeChild(logsContainer.firstChild);
         };
 
         manager.onLoad = () => {
-            document.getElementById('status-text').textContent = "SYSTEM ONLINE";
+            document.getElementById('status-text').textContent = "Welcome";
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
                 setTimeout(() => { 
@@ -266,10 +266,12 @@
         scene.add(label);
     }
     
+    const SECTION_LABELS = { OVERVIEW: 'Home', ABOUT: 'About me', PROJECTS: 'Projects', CONTACT: 'Say hello' };
+
     function createDataProbe(data) {
         const el = document.createElement('div');
         el.className = 'data-probe';
-        el.innerHTML = `<div>> PROBE: ${currentSection}</div><div class="progress-bar"><div class="progress-fill" id="probe-fill"></div></div>`;
+        el.innerHTML = `<div>${SECTION_LABELS[currentSection] || currentSection}</div><div class="progress-bar"><div class="progress-fill" id="probe-fill"></div></div>`;
         const label = new CSS2DObject(el);
         label.position.copy(data.contentPos.clone().add(new THREE.Vector3(0.5, -0.5, 0)));
         dataProbeObject = label;
