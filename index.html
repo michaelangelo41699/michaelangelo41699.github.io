@@ -106,9 +106,17 @@
     </div>
 </div>
 
-<div id="expanded-project" class="expanded-card">
-    <div class="close-button" onclick="closeExpandedCard()">&times;</div>
+<div id="expanded-project" class="expanded-card" role="dialog" aria-modal="true" aria-label="Project details">
+    <button type="button" class="close-button" onclick="closeExpandedCard()" aria-label="Close">&times;</button>
     <div id="expanded-content"></div>
+</div>
+
+<section id="project-deck" aria-labelledby="deck-title" hidden></section>
+
+<div id="lightbox" hidden>
+    <button type="button" class="lightbox-close" aria-label="Close image">&times;</button>
+    <img id="lightbox-img" alt="">
+    <p id="lightbox-caption"></p>
 </div>
 
 <div id="ui-menu">
@@ -124,6 +132,7 @@
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
     import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
     import { CAMERA_POSITIONS, LERP_FACTOR, BRAIN_SCALE, PROJECT_DETAILS } from './js/data.js';
+    import { PROJECTS, getProject, renderDeck, renderCaseStudy } from './js/projects.js';
 
     // --- GLOBAL VARIABLES ---
     let brain, scene, camera, renderer, labelRenderer, controls;
@@ -135,6 +144,13 @@
     let transitionInProgress = false;
     const DATA_PROBE_DELAY = 1000; 
     
+    // Project deck and brain highlights
+    const deckEl = document.getElementById('project-deck');
+    const glows = {};
+    let highlightLight = null;
+    let hoverId = null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     let pulseFactor = 0.0;
     const PULSE_SPEED = 0.05;
     const PULSE_MAGNITUDE = 0.03; 
@@ -209,6 +225,7 @@
             brain.position.sub(center); 
             brain.scale.set(BRAIN_SCALE, BRAIN_SCALE, BRAIN_SCALE); 
             scene.add(brain);
+            addBrainHighlights(bbox, center);
             
             createAndAttachContent(currentSection);
             const data = CAMERA_POSITIONS[currentSection];
@@ -249,10 +266,137 @@
         return group;
     }
 
+    // A soft round glow, drawn once and shared by every highlight
+    function makeGlowTexture() {
+        const c = document.createElement('canvas');
+        c.width = c.height = 128;
+        const ctx = c.getContext('2d');
+        const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        g.addColorStop(0, 'rgba(255,255,255,1)');
+        g.addColorStop(0.18, 'rgba(255,255,255,0.85)');
+        g.addColorStop(0.45, 'rgba(255,255,255,0.25)');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, 128, 128);
+        return new THREE.CanvasTexture(c);
+    }
+
+    // One glow per project, placed inside the brain so it turns with it.
+    // A single shared light moves to whichever project is hovered (one light keeps the brain fast to draw).
+    function addBrainHighlights(bbox, center) {
+        const size = bbox.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const tex = makeGlowTexture();
+        PROJECTS.forEach((p) => {
+            const [u, v, w] = p.region;
+            const local = new THREE.Vector3(u * size.x, v * size.y, w * size.z).add(center);
+            const color = new THREE.Color(p.accent);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: tex, color, transparent: true, opacity: 0,
+                blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false
+            }));
+            sprite.position.copy(local);
+            sprite.scale.setScalar(maxDim * 0.5);
+            brain.add(sprite);
+            glows[p.id] = { sprite, color, local, level: 0 };
+        });
+        highlightLight = new THREE.PointLight(0xffffff, 0, maxDim * 0.9, 1.5);
+        brain.add(highlightLight);
+    }
+
+    let lastHighlight = performance.now();
+    function updateHighlights() {
+        const now = performance.now();
+        const dt = Math.min(0.1, (now - lastHighlight) / 1000);
+        lastHighlight = now;
+        // Time-based fade, so it feels the same on fast and slow devices
+        const step = reduceMotion ? 1 : Math.min(1, dt * 9);
+        Object.keys(glows).forEach((id) => {
+            const g = glows[id];
+            const target = id === hoverId ? 1 : 0;
+            g.level += (target - g.level) * step;
+            const flicker = reduceMotion ? 1 : 0.88 + 0.12 * Math.sin(time * 0.08);
+            g.sprite.material.opacity = Math.min(1, g.level * flicker);
+        });
+        if (highlightLight) {
+            const g = hoverId && glows[hoverId];
+            if (g) {
+                highlightLight.position.copy(g.local);
+                highlightLight.color.copy(g.color);
+            }
+            const level = g ? g.level : 0;
+            highlightLight.intensity += (level * 10 - highlightLight.intensity) * step;
+        }
+    }
+
+    // --- Project deck ---
+    function buildDeck() {
+        deckEl.innerHTML = renderDeck();
+        deckEl.querySelectorAll('.project-card').forEach((card) => {
+            const id = card.dataset.id;
+            card.addEventListener('click', () => window.openProject(id));
+            card.addEventListener('mouseenter', () => { hoverId = id; });
+            card.addEventListener('mouseleave', () => { if (hoverId === id) hoverId = null; resetTilt(card); });
+            card.addEventListener('focus', () => { hoverId = id; });
+            card.addEventListener('blur', () => { if (hoverId === id) hoverId = null; });
+            if (!reduceMotion) card.addEventListener('pointermove', (e) => tilt(card, e));
+        });
+    }
+
+    function tilt(card, e) {
+        if (e.pointerType !== 'mouse') return;
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--ry', (x * 9).toFixed(2) + 'deg');
+        card.style.setProperty('--rx', (-y * 9).toFixed(2) + 'deg');
+        card.style.setProperty('--mx', ((x + 0.5) * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', ((y + 0.5) * 100).toFixed(1) + '%');
+    }
+
+    function resetTilt(card) {
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+    }
+
+    function showDeck() {
+        deckEl.hidden = false;
+        requestAnimationFrame(() => deckEl.classList.add('open'));
+    }
+
+    function hideDeck() {
+        deckEl.classList.remove('open');
+        hoverId = null;
+        deckEl.hidden = true;
+    }
+
+    // --- Image viewer for project galleries ---
+    const lightbox = document.getElementById('lightbox');
+    function openLightbox(src, alt) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox-img').alt = alt;
+        document.getElementById('lightbox-caption').textContent = alt;
+        lightbox.hidden = false;
+        lightbox.querySelector('.lightbox-close').focus();
+    }
+    function closeLightbox() {
+        lightbox.hidden = true;
+    }
+    lightbox.addEventListener('click', (e) => {
+        if (e.target.id !== 'lightbox-img') closeLightbox();
+    });
+
     // --- 4. CONTENT & UI ---
     function createAndAttachContent(key) {
         if (contentObject) scene.remove(contentObject);
         if (dataProbeObject) scene.remove(dataProbeObject);
+
+        if (key === 'PROJECTS') {
+            // The deck takes the place of the floating card
+            contentObject = null;
+            contentElement = document.createElement('div');
+            return;
+        }
 
         const data = CAMERA_POSITIONS[key];
         const el = document.createElement('div');
@@ -303,6 +447,7 @@
                 setTimeout(() => {
                     controls.enabled = true;
                     if(dataProbeObject) dataProbeObject.element.style.opacity = '0';
+                    if (currentSection === 'PROJECTS') { showDeck(); return; }
                     const d = CAMERA_POSITIONS[currentSection];
                     contentElement.style.transform = `translate(${d.offset[0]}, ${d.offset[1]}) scale(1) translateZ(0px)`;
                     contentElement.classList.add('active'); 
@@ -310,7 +455,8 @@
             }
         }
 
-        if (brain && !transitionInProgress) brain.rotation.y += 0.002;
+        if (brain && !transitionInProgress && !hoverId) brain.rotation.y += 0.002;
+        updateHighlights();
         if (neuralLines) {
             neuralLines.children.forEach(l => {
                 l.material.opacity = (Math.sin(time * 0.05 + l.userData.pulse) * 0.05) + 0.1;
@@ -323,21 +469,44 @@
     }
 
     // --- 6. WINDOW GLOBALS ---
-    window.openExpandedCard = (html) => {
+    const modal = document.getElementById('expanded-project');
+    let lastFocus = null;
+
+    window.openExpandedCard = (html, caseMode = false) => {
+        lastFocus = document.activeElement;
         document.getElementById('expanded-content').innerHTML = html;
-        document.getElementById('expanded-project').classList.add('visible');
+        modal.classList.toggle('case-mode', caseMode);
+        modal.scrollTop = 0;
+        modal.classList.add('visible');
         controls.enabled = false;
+        modal.querySelector('.close-button').focus({ preventScroll: true });
     };
     window.closeExpandedCard = () => {
-        document.getElementById('expanded-project').classList.remove('visible');
+        modal.classList.remove('visible');
         controls.enabled = true;
+        if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
     };
     window.openProject = (key) => {
-        if (PROJECT_DETAILS[key]) window.openExpandedCard(PROJECT_DETAILS[key]);
+        const project = getProject(key);
+        if (project) {
+            window.openExpandedCard(renderCaseStudy(project), true);
+            modal.querySelectorAll('.case-shot').forEach((shot) => {
+                shot.addEventListener('click', () => openLightbox(shot.dataset.full, shot.dataset.alt));
+            });
+        } else if (PROJECT_DETAILS[key]) {
+            window.openExpandedCard(PROJECT_DETAILS[key]);
+        }
     };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (!lightbox.hidden) closeLightbox();
+        else if (modal.classList.contains('visible')) window.closeExpandedCard();
+    });
     window.navigateTo = (key) => {
         if (CAMERA_POSITIONS[key] && !transitionInProgress && key !== currentSection) {
             if (contentElement) contentElement.classList.remove('active');
+            hideDeck();
             currentTarget = CAMERA_POSITIONS[key];
             currentSection = key; 
             controls.enabled = false; 
@@ -358,6 +527,7 @@
         labelRenderer.setSize(window.innerWidth, window.innerHeight);
     });
 
+    buildDeck();
     init();
 </script>
 </body>
