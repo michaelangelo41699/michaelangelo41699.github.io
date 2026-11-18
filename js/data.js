@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 // --- Global Constants ---
+const IS_PHONE = typeof window !== 'undefined' && window.innerWidth <= 768;
 export const LERP_FACTOR = 0.08; 
 export const BRAIN_SCALE = 1.0; 
 
@@ -140,20 +141,12 @@ export const CAMERA_POSITIONS = {
     
     // --- OVERVIEW ---
     OVERVIEW: {
-        pos: new THREE.Vector3(0, 0, 2), 
-        target: new THREE.Vector3(0, 0, 0),
+        // The brain sits to the right on wide screens, lower on phones, to leave room for the Home hero (js/home.js)
+        pos: new THREE.Vector3(IS_PHONE ? 0 : -0.6, IS_PHONE ? 0.5 : 0, IS_PHONE ? 2.8 : 2),
+        target: new THREE.Vector3(IS_PHONE ? 0 : -0.6, IS_PHONE ? 0.5 : 0, 0),
         contentPos: new THREE.Vector3(0, 0, 0),
         offset: ['-100%', '-50%'],
-        html: `
-            <h1>Michael Gonzalez</h1>
-            <h2>Computer Science Student at Texas A&amp;M</h2>
-            <p>I'm a developer from Aguadilla, Puerto Rico, and I build software that helps people notice how they think, feel, and spend their attention, from behavioral models that detect when someone drifts from their own goals to Joy, an AI companion for self-awareness.</p>
-            <p>I'm also researching neuromorphic computing: brain-inspired spiking networks that keep learning without forgetting what they already know.</p>
-            <p>I'm looking for research-focused internships in AI and machine learning.</p>
-            <div class="contact-buttons">
-                <button onclick="navigateTo('PROJECTS')">See my projects</button>
-            </div>
-        `
+        html: ''
     },
     
     // --- ABOUT (Updated Button) ---
