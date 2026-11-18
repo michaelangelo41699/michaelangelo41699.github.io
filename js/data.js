@@ -169,21 +169,13 @@ export const CAMERA_POSITIONS = {
         html: ''
     },
     
-    // --- CONTACT (Unchanged) ---
+    // --- CONTACT ---
     CONTACT: {
-        pos: new THREE.Vector3(-3.2, 0, 0),
-        target: new THREE.Vector3(0, -0.5, 0),
+        // Brain on the right on wide screens, lower on phones; the Contact card is js/contact.js
+        pos: new THREE.Vector3(-3.2, IS_PHONE ? 0.75 : 0, IS_PHONE ? 0 : -1.05),
+        target: new THREE.Vector3(0, IS_PHONE ? 0.75 : -0.15, IS_PHONE ? 0 : -1.05),
         contentPos: new THREE.Vector3(3, 0, 0),
         offset: ['-100%', '-50%'],
-        html: `
-            <h2>Contact</h2>
-            <p>I'm always glad to talk about cognitive science, AI, or a project you're working on.</p>
-            <p>Email: <a href="mailto:michaelangelo41699@gmail.com" style="color: #99ccff;">michaelangelo41699@gmail.com</a></p>
-            <p>Find me online:</p>
-            <ul style="list-style: none; padding: 0;">
-                <li><a href="https://www.linkedin.com/in/michael-gonzalez-190321272" target="_blank" style="color: #99ccff;">LinkedIn</a></li>
-                <li><a href="https://github.com/michaelangelo41699" target="_blank" style="color: #99ccff;">GitHub</a></li>
-            </ul>
-        `
+        html: ''
     }
 };
