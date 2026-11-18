@@ -44,7 +44,7 @@ const RESUME_HTML = `
             <div class="skills-grid">
                 <div>
                     <h4>AI &amp; Machine Learning</h4>
-                    <p>TensorFlow, PyTorch, Natural Language Processing (emotion, mood &amp; persuasion detection), Predictive Modeling, Behavioral Pattern Recognition, Large Language Models &amp; prompt engineering, Dataset preparation &amp; model evaluation</p>
+                    <p>TensorFlow, PyTorch, snnTorch &amp; spiking neural networks, Natural Language Processing (emotion, mood &amp; persuasion detection), Predictive Modeling, Behavioral Pattern Recognition, Large Language Models &amp; prompt engineering, Dataset preparation &amp; model evaluation</p>
                 </div>
                 <div>
                     <h4>Core Languages</h4>
@@ -63,7 +63,17 @@ const RESUME_HTML = `
         
         <section class="projects">
             <h3>PROJECTS</h3>
-            
+
+            <div class="entry">
+                <h4>Neuromorphic Memory: Continual Learning in Spiking Neural Networks <span style="font-weight: normal; color: #aaa;">(Independent Research, 2026–present)</span></h4>
+                <ul>
+                    <li>Implemented e-prop, a local, biologically plausible learning rule, by hand in PyTorch and verified it against backpropagation through time (exact match in the reference case).</li>
+                    <li>Reimplemented astrocyte-modulated plasticity (AGMP; Dong &amp; He, 2026) from its published equations and benchmarked class-incremental Split N-MNIST across multiple seeds.</li>
+                    <li>Built Benna–Fusi cascade synapses that forget as a power law (log-log slope −0.50), plus a GPU experiment pipeline on Google Colab with reproducibility logging.</li>
+                    <li>Found that a homeostatic firing-rate rule cut silent neurons from about half the layer to under 10% and raised cued accuracy from 0.87 to 0.95 over 3 seeds.</li>
+                </ul>
+            </div>
+
             <div class="entry">
                 <h4>Shield-AI: Cognitive Behavioral State Monitoring System <span style="font-weight: normal; color: #aaa;">(Lead Developer)</span></h4>
                 <ul>
@@ -111,7 +121,7 @@ const RESUME_HTML = `
 
         <section class="interests">
             <h3>INTERESTS</h3>
-            <p>Human-centered AI, Cognitive science, Digital ethics &amp; misinformation, Behavioral psychology, Product design, Emerging technologies</p>
+            <p>Human-centered AI, Neuromorphic computing, Cognitive science, Digital ethics &amp; misinformation, Behavioral psychology, Product design, Emerging technologies</p>
         </section>
     </div>
 `;
@@ -201,6 +211,42 @@ const JOY_FULL_HTML = `
     </div>
 `;
 
+// 5. Full HTML for the neuromorphic research project
+const NEUROMORPHIC_FULL_HTML = `
+    <h2>Neuromorphic Memory: Spiking Networks That Don't Forget</h2>
+    <p>Teach today's AI something new and it tends to overwrite what it already knew. This is called catastrophic forgetting. Brains don't do this, partly because a synapse isn't a single number: memories settle in over several stages. My research asks whether brain-like mechanisms can give a spiking neural network the same ability, using only learning rules that a neuromorphic chip could run locally.</p>
+
+    <h3>The question:</h3>
+    <p>Can an astrocyte-style gate, which decides <em>when</em> a synapse may change, combined with multi-timescale cascade synapses, which decide <em>how long</em> a change lasts, reduce forgetting in a spiking network? The network learns with a local rule and is never told which task it's on.</p>
+
+    <h3>What I built:</h3>
+    <ul>
+        <li>Spiking Network &amp; Data: A leaky integrate-and-fire network trained on N-MNIST, real event-camera recordings (2,312 inputs over 25 time steps), split into 5 tasks learned one after another.</li>
+        <li>Local Learning, by Hand: e-prop written without autograd, so each synapse learns only from information it can see. Verified against backpropagation through time, with an exact match in the reference case.</li>
+        <li>Astrocyte Gate: Rebuilt astrocyte-modulated plasticity (AGMP; Dong &amp; He, 2026) from its published equations, since no code was released.</li>
+        <li>Cascade Synapses: Each weight becomes a chain of coupled variables (Benna &amp; Fusi, 2016). Verified that a single memory fades as a power law (log-log slope −0.50) instead of exponentially.</li>
+        <li>Experiment Pipeline: GPU training on Google Colab with multi-seed sweeps, two scoring modes, and reproducibility logging (weight hashes and environment records).</li>
+    </ul>
+
+    <h3>Results so far:</h3>
+    <ul>
+        <li>A plain spiking network forgets almost completely: about 19% final accuracy across 10 digits, the textbook catastrophic-forgetting result.</li>
+        <li>A homeostatic rule that keeps neurons from going silent cut idle neurons from about half the layer to under 10%. It also raised accuracy when each task is tested on its own two digits from 0.87 to 0.95 (3 seeds).</li>
+        <li>Next: re-testing the gate and cascade synapses on this stronger baseline, then longer task sequences, where a power-law memory should matter most.</li>
+    </ul>
+
+    <div class="screenshot-container wide">
+    <img src="neuromorphic/network.jpg" alt="Diagram of the spiking network: event inputs, synapses, spiking neurons with astrocytes, readout, and error feedback">
+    <img src="neuromorphic/brain.jpg" alt="Schematic brain showing which regions each part of the network stands in for">
+    <img src="neuromorphic/cascade_decay.png" alt="Forgetting curves of one cascade synapse: one variable fades exponentially, longer chains follow a power law">
+    </div>
+
+    <div class="contact-buttons">
+        <button onclick="window.open('neuromorphic/anatomy.html', '_blank')">Explore the interactive brain map</button>
+    </div>
+    <p style="font-size: 0.85em; color: #aaa;">Research in progress. The code is private for now.</p>
+`;
+
 const PORTFOLIO_FULL_HTML = `
     <h2>Interactive 3D Portfolio</h2>
     <p>The site you're on: a portfolio built around a 3D brain you can explore, built with Three.js.</p>
@@ -227,6 +273,7 @@ export const PROJECT_DETAILS = {
     ALEXANDRIA: ALEXANDRIA_FULL_HTML,
     GUARDIAN: GUARDIAN_FULL_HTML,
     JOY: JOY_FULL_HTML,
+    NEUROMORPHIC: NEUROMORPHIC_FULL_HTML,
     PORTFOLIO: PORTFOLIO_FULL_HTML,
     RESUME: RESUME_HTML,
 };
@@ -245,6 +292,7 @@ export const CAMERA_POSITIONS = {
             <h1>Michael Gonzalez</h1>
             <h2>Computer Science Student at Texas A&amp;M</h2>
             <p>I'm a developer from Aguadilla, Puerto Rico, and I build software that helps people notice how they think, feel, and spend their attention, from behavioral models that detect when someone drifts from their own goals to Joy, an AI companion for self-awareness.</p>
+            <p>I'm also researching neuromorphic computing: brain-inspired spiking networks that keep learning without forgetting what they already know.</p>
             <p>I'm looking for research-focused internships in AI and machine learning.</p>
             <div class="contact-buttons">
                 <button onclick="navigateTo('PROJECTS')">See my projects</button>
@@ -261,10 +309,11 @@ export const CAMERA_POSITIONS = {
         html: `
             <h2>About me</h2>
             <p>I'm curious about why people do what they do, and whether technology can help us see ourselves more clearly instead of just capturing our attention. That question shapes most of what I build.</p>
+            <p>Lately it has led me to the brain itself. I'm researching how spiking neural networks can learn new things without overwriting old memories, with the goal of running that work on neuromorphic hardware.</p>
             <p>I've been building software since 2015, when I founded MasterCraftCode, a drag-and-drop tool that generated mobile apps for 100+ non-technical clients.</p>
             <p>Tools I work with:</p>
             <ul style="list-style: square; margin-left: 20px;">
-                <li>AI &amp; ML: TensorFlow, PyTorch, NLP, behavioral pattern recognition.</li>
+                <li>AI &amp; ML: TensorFlow, PyTorch, snnTorch, NLP, spiking neural networks, behavioral pattern recognition.</li>
                 <li>Languages: Python, Java, JavaScript, TypeScript, SQL.</li>
                 <li>Apps &amp; web: React Native, Android, React, Three.js.</li>
                 <li>Cloud: AWS, Firebase, FastAPI, Redis.</li>
@@ -285,9 +334,18 @@ export const CAMERA_POSITIONS = {
             <h2>Projects</h2>
             <p>Things I've built, and the questions behind them:</p>
             <ul style="list-style: none; padding-left: 0;">
-                
-                <li onclick="openProject('ALEXANDRIA')" 
+
+                <li onclick="openProject('NEUROMORPHIC')"
                     style="cursor: pointer; color: #99ccff; transition: color 0.2s;">
+                     Neuromorphic Memory (Research): A brain-inspired spiking network that learns new tasks without overwriting old ones. [Read more]
+                </li>
+                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
+                    <li>Local learning (e-prop), an astrocyte gate, and cascade synapses in PyTorch.</li>
+                    <li>An interactive brain map of the model, part by part.</li>
+                </ul>
+
+                <li onclick="openProject('ALEXANDRIA')"
+                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
                      Alexandria (AI Study Platform): Turns raw class materials into personalized quizzes and study tools. [Read more]
                 </li>
                 <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">

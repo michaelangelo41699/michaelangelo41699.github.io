@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive map of Michael Gonzalez's spiking neural network research: each part of the network next to the piece of brain it stands in for.">
+<title>Cascade-SNN Anatomy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fluorescence-microscopy plate. Dark field by default, neurons in magenta,
+   astrocytes in green (GFAP-style), broadcast signals in cyan, synaptic tags in amber.
+   One wide interactive diagram, then the brain map, timescales and gaps. */
+:root {
+  --bg: #0a0c13; --surface: #121624; --surface-2: #1a1f31; --line: #2a3148;
+  --ink: #e7eaf3; --muted: #8e95ad;
+  --neuron: #ff5aa8; --astro: #5ee38c; --signal: #52cfff; --trace: #ffbf47; --missing: #5d647c;
+  --glow: 0.55;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eef0f6; --surface: #ffffff; --surface-2: #f5f6fa; --line: #d5d9e6;
+    --ink: #151a2a; --muted: #59607a;
+    --neuron: #c4126b; --astro: #12844a; --signal: #0b78a6; --trace: #9a6400; --missing: #9aa0b4;
+    --glow: 0; color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #eef0f6; --surface: #ffffff; --surface-2: #f5f6fa; --line: #d5d9e6;
+  --ink: #151a2a; --muted: #59607a;
+  --neuron: #c4126b; --astro: #12844a; --signal: #0b78a6; --trace: #9a6400; --missing: #9aa0b4;
+  --glow: 0; color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 700; }
+h3 { font-size: 1.12rem; font-weight: 700; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 68ch; font-size: 1.05rem; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+section { display: flex; flex-direction: column; gap: 18px; }
+.sec-head { display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+
+/* header */
+header { display: flex; flex-direction: column; gap: 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.88rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.sw.neuron { background: var(--neuron); } .sw.astro { background: var(--astro); }
+.sw.signal { background: var(--signal); } .sw.trace { background: var(--trace); }
+.sw.missing { border: 1.5px dashed var(--missing); }
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stat b { font-family: var(--f-display); font-size: 1rem; }
+.stat small { color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+.pill { font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); align-self: flex-start; }
+.pill.done { color: var(--astro); border-color: color-mix(in srgb, var(--astro) 45%, transparent); }
+.pill.test { color: var(--trace); border-color: color-mix(in srgb, var(--trace) 45%, transparent); }
+.pill.next { color: var(--signal); border-color: color-mix(in srgb, var(--signal) 45%, transparent); }
+
+/* toggle */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; justify-content: space-between; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { font: 600 0.9rem var(--f-body); color: var(--muted); background: transparent; border: 0; border-radius: 999px; padding: 7px 16px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.hint { font-size: 0.86rem; color: var(--muted); }
+
+/* diagram + detail */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.plate { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+.plate svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--f-body); fill: var(--ink); }
+svg .lbl { font-size: 13px; font-weight: 700; }
+svg .sub { font-size: 11px; fill: var(--muted); }
+svg .mono { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted); }
+.part { cursor: pointer; transition: opacity 0.25s; }
+.part:hover .hit, .part.sel .hit { stroke: var(--ink); stroke-opacity: 0.55; }
+.hit { fill: transparent; stroke: transparent; stroke-width: 1.2; stroke-dasharray: 4 4; }
+.dimmed .part:not(.lit) { opacity: 0.22; }
+.part.lit .glowable { filter: drop-shadow(0 0 6px currentColor); }
+
+.detail { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+@media (max-width: 900px) { .detail { position: static; } }
+.detail .kind { display: flex; align-items: center; gap: 8px; }
+.detail .pair { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.side { border-left: 3px solid var(--line); padding-left: 12px; display: flex; flex-direction: column; gap: 4px; }
+.side.prog { border-color: var(--muted); }
+.side.brain { border-color: var(--neuron); }
+.side .eyebrow { font-size: 0.68rem; }
+.eq { font-family: var(--f-mono); font-size: 0.8rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; overflow-x: auto; white-space: pre; color: var(--ink); }
+.fid { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+.fid .dots { letter-spacing: 2px; color: var(--ink); }
+.breaks { font-size: 0.92rem; color: var(--muted); }
+.breaks b { color: var(--ink); }
+
+/* stepper */
+.stepper { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.steprow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; }
+.stepbtns { display: flex; gap: 8px; }
+.btn { font: 700 0.88rem var(--f-body); color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.ghost { background: transparent; color: var(--muted); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; }
+.steps li button { width: 100%; text-align: left; font: 0.82rem var(--f-body); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+.steps li button .n { font-family: var(--f-mono); font-size: 0.74rem; color: var(--muted); }
+.steps li button[aria-current="step"] { color: var(--ink); border-color: var(--ink); background: var(--surface-2); }
+.stepnow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 700px) { .stepnow { grid-template-columns: minmax(0, 1fr); } }
+.stepnow h3 { grid-column: 1 / -1; }
+
+/* brain map */
+.brainwrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .brainwrap { grid-template-columns: minmax(0, 1fr); } }
+.brainplate { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+.brainplate svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.region { cursor: pointer; }
+.region .rfill { transition: fill-opacity 0.2s; }
+.region:hover .rfill, .region.sel .rfill { fill-opacity: 0.55; }
+.regionlist { display: flex; flex-direction: column; gap: 8px; }
+.rcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+
+/* timescales */
+.ladder { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px 4px; overflow-x: auto; }
+.ladder svg { display: block; width: 100%; min-width: 680px; height: auto; }
+.note { font-size: 0.9rem; color: var(--muted); max-width: 75ch; }
+
+/* table */
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 0.92rem; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+td .dots { font-family: var(--f-mono); letter-spacing: 2px; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--surface-2); }
+
+/* gaps */
+.gaps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.gap { border: 1.5px dashed var(--missing); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.gap.key { border-style: solid; border-color: var(--trace); }
+.gap p { font-size: 0.92rem; color: var(--muted); }
+.back { color: var(--signal); font-size: 0.92rem; text-decoration: none; align-self: flex-start; }
+.back:hover { text-decoration: underline; }
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="../">← Michael Gonzalez · Portfolio</a>
+    <span class="eyebrow">cascade-snn · research in progress · updated Nov 2026</span>
+    <h1>Cascade-SNN Anatomy</h1>
+    <p class="lede">The spiking network from my continual-learning research, drawn twice: as the program it is, and as the piece of brain it stands in for. Click any part to see its code, its equation, its biological counterpart, and where the comparison breaks down.</p>
+    <div class="legend" aria-label="Color key">
+      <span><i class="sw neuron"></i>Neurons</span>
+      <span><i class="sw astro"></i>Astrocytes (glia)</span>
+      <span><i class="sw signal"></i>Broadcast learning signal</span>
+      <span><i class="sw trace"></i>Synaptic memory and tags</span>
+      <span><i class="sw missing"></i>Planned or not modeled</span>
+    </div>
+    <div class="status">
+      <div class="stat"><span class="pill done">Baseline</span><b>A plain spiking network forgets</b><small>Backprop and local e-prop both fall to about 0.19 on Split N-MNIST (3 seeds): textbook catastrophic forgetting.</small></div>
+      <div class="stat"><span class="pill done">Finding</span><b>Homeostasis keeps neurons awake</b><small>Silent neurons fell from about half the layer to under 10%, and cued accuracy rose from 0.87 to 0.95 (3 seeds).</small></div>
+      <div class="stat"><span class="pill test">Tested</span><b>Astrocyte gate</b><small>Rebuilt from AGMP's published equations. On its own, no gain in class-incremental learning.</small></div>
+      <div class="stat"><span class="pill test">Under test</span><b>Cascade synapses</b><small>Built and verified: one memory fades as a power law. Now being re-tested on the stronger baseline.</small></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="sys-h">
+    <div class="sec-head">
+      <span class="eyebrow">1 · the system</span>
+      <h2 id="sys-h">The network, part by part</h2>
+      <p class="lede">Each dot stands for many: 8 of the 256 hidden neurons are drawn, and a few of the 591,872 input synapses.</p>
+    </div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Label the diagram as">
+        <button type="button" id="view-prog" aria-pressed="true">Program view</button>
+        <button type="button" id="view-brain" aria-pressed="false">Brain view</button>
+      </div>
+      <span class="hint">Click a part, or step through one time step below.</span>
+    </div>
+    <div class="stage">
+      <div class="plate"><svg id="net" viewBox="0 0 1000 530" role="img" aria-label="Network diagram: event inputs, synapses, hidden LIF neurons with astrocytes, readout neurons, error and random feedback"></svg></div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+
+    <div class="stepper" id="stepper">
+      <div class="steprow">
+        <div><span class="eyebrow">the program's loop</span><h3 style="margin-top:4px">One time step, in the order the code runs it</h3></div>
+        <div class="stepbtns">
+          <button type="button" class="btn ghost" id="step-off">Show all</button>
+          <button type="button" class="btn" id="step-prev">Previous</button>
+          <button type="button" class="btn" id="step-next">Next step</button>
+        </div>
+      </div>
+      <ol class="steps" id="steplist"></ol>
+      <div class="stepnow" id="stepnow"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="brain-h">
+    <div class="sec-head">
+      <span class="eyebrow">2 · the comparison</span>
+      <h2 id="brain-h">Where each part would sit in a brain</h2>
+      <p class="lede">A schematic side view, front of the head on the left. Solid regions are what the network models; dashed ones are parts the brain uses for the same job that this system leaves out.</p>
+    </div>
+    <div class="brainwrap">
+      <div class="brainplate"><svg id="brain" viewBox="0 0 640 430" role="img" aria-label="Schematic brain with the regions this network corresponds to"></svg></div>
+      <div class="regionlist"><div class="rcard" id="rcard"></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="time-h">
+    <div class="sec-head">
+      <span class="eyebrow">3 · timescales</span>
+      <h2 id="time-h">How long each memory lasts</h2>
+      <p class="lede">My thesis is about timescales: one mechanism for when to write, one for how long a write lasts. Here's the network's clock next to the brain's, on a log scale.</p>
+    </div>
+    <div class="ladder"><svg id="ladder" viewBox="0 0 900 330" role="img" aria-label="Timescale comparison on a log axis from 1 millisecond to about a day"></svg></div>
+    <p class="note">Network times are in N-MNIST recording time: each sample's ~300 ms is cut into 25 steps of about 12 ms. The 128 samples in a batch run side by side, so the network experiences much less time than the data contains. Treat these as rough conversions. The bottom row is the point: a weight in this network holds its memory for about one task, while a brain synapse can hold one for a lifetime.</p>
+  </section>
+
+  <section aria-labelledby="table-h">
+    <div class="sec-head">
+      <span class="eyebrow">4 · the whole mapping</span>
+      <h2 id="table-h">Every part, its counterpart, and how close it is</h2>
+      <p class="lede">Dots rate how faithful the analogy is: ●●● close in principle, ●●○ partly, ●○○ loosely, ○○○ engineering with no counterpart. Click a row to open it in the diagram above.</p>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>Program part</th><th>Brain counterpart</th><th>Fidelity</th><th>Where in the code</th><th>Status</th></tr></thead><tbody id="maptable"></tbody></table></div>
+  </section>
+
+  <section aria-labelledby="gap-h">
+    <div class="sec-head">
+      <span class="eyebrow">5 · what's missing</span>
+      <h2 id="gap-h">What the brain has that this network doesn't</h2>
+      <p class="lede">None of these are bugs. Each one is a choice to keep thesis 1 small. The first one bears directly on the forgetting results.</p>
+    </div>
+    <div class="gaps" id="gaps"></div>
+  </section>
+
+  <footer>Michael Gonzalez · Built from my cascade-snn code (data_nmnist.py, eprop.py, astrocyte.py, cascade.py, train.py) and Dong &amp; He (2026) Eqs. 1–10. Biological figures are textbook-level approximations, cited where specific.</footer>
+</div>
+
+<script>
+(() => {
+  const NS = "http://www.w3.org/2000/svg";
+  const FID = { close: ["●●●", "close in principle"], partial: ["●●○", "partly"], loose: ["●○○", "loosely"], none: ["○○○", "no counterpart"], planned: ["◌◌◌", "planned"] };
+  const STATUS = { built: ["Built and tested", "done"], test: ["Built, under test", "test"], planned: ["Planned", "next"], off: ["Built, off by default", ""] };
+
+  const P = {
+    input: {
+      prog: "Event input", brain: "Retina",
+      progSub: "2,312 lines · 34×34 px × ON/OFF", brainSub: "ON and OFF ganglion cells",
+      color: "signal", code: "data_nmnist.py · ToFrame, _binarize, frames_to_spikes",
+      eq: "x_i(t) ∈ {0, 1}     i = 1 … 2,312\n25 time steps per sample (~12 ms each)",
+      does: "Every time step, each of 2,312 lines carries a spike or nothing: one line per pixel per polarity (got brighter, got darker). No rate coding here; the camera made the spikes.",
+      bio: "The camera that recorded N-MNIST (a DVS) was designed after the retina. Its pixels report only changes, like ON and OFF retinal ganglion cells, and the recording's three small camera movements imitate eye saccades.",
+      fid: "close",
+      breaks: "34×34 pixels instead of about a million ganglion cells per eye, no center-surround filtering, no color. And the signal jumps straight into the \"cortex\": no thalamus, no V1 → V2 hierarchy.",
+      status: "built"
+    },
+    w1: {
+      prog: "Synapses W1", brain: "Synapses onto cortex",
+      progSub: "591,872 weights + 256 biases", brainSub: "where long-term memory lives",
+      color: "trace", code: "eprop.py · self.fc1 (weight, bias)",
+      eq: "I_j(t) = Σ_i W1_ji · x_i(t) + b1_j",
+      does: "Each input spike adds its weight to the receiving neuron's current. These numbers are the network's long-term memory: learning means changing them.",
+      bio: "A synapse's strength sets how far one incoming spike moves the receiving neuron's voltage. Long-term memory is stored in these strengths, in brains and in this network alike.",
+      fid: "partial",
+      breaks: "Every input connects to every hidden neuron, and one input can excite one neuron and inhibit another. Real neurons are either excitatory or inhibitory for all their outputs (Dale's law), and wiring is sparse. Each weight is a single number; real synapses store memory in several biochemical stages. <b>That gap is my thesis: the cascade adds those stages.</b>",
+      status: "built"
+    },
+    hidden: {
+      prog: "Hidden layer", brain: "Cortical neurons",
+      progSub: "256 LIF neurons", brainSub: "a small patch of cortex",
+      color: "neuron", code: "eprop.py · learn(), step 1 (AGMP Eqs. 1–2)",
+      eq: "u_j(t) = α·u_j(t−1) + I_j(t) − θ·s_j(t−1)\ns_j(t) = 1 if u_j(t) > θ else 0\nb_j ← b_j − 0.01·(rate_j − 0.05)\nα = 0.9   θ = 1",
+      does: "Leak, integrate, fire. Each neuron's voltage decays by 10% a step, adds its input current, and when it crosses 1.0 it fires a spike and subtracts the threshold (soft reset). A homeostatic rule nudges each neuron's bias toward a target firing rate, so no neuron stays silent for long.",
+      bio: "The leaky integrate-and-fire model is the standard simplification of a neuron: the membrane leaks charge, sums its inputs, and fires an all-or-nothing spike at threshold. A layer of them stands in for one patch of cortex.",
+      fid: "partial",
+      breaks: "No dendrites (real pyramidal cells compute in their branches), no ion channels, no refractory period, no recurrent wiring, no inhibitory interneurons. The membrane time constant here is about 9.5 steps (≈ 110 ms), several times slower than typical cortical neurons (about 10–30 ms).",
+      status: "built"
+    },
+    readout: {
+      prog: "Readout", brain: "Decision neurons",
+      progSub: "10 leaky integrators · argmax", brainSub: "evidence accumulation",
+      color: "neuron", code: "eprop.py · m = κ·m + fc2(s); forward() averages over time",
+      eq: "m_k(t) = κ·m_k(t−1) + Σ_j W2_kj·s_j(t) + b2_k\nanswer = argmax_k  mean_t m_k(t)     κ = 0.9",
+      does: "One neuron per digit. Each one accumulates evidence from hidden spikes and never fires. At the end, the digit with the highest average voltage is the answer.",
+      bio: "In decision tasks, neurons in parietal and prefrontal cortex ramp up as evidence for one choice builds, until one choice wins. That's the evidence-accumulation (drift-diffusion) picture.",
+      fid: "loose",
+      breaks: "These neurons never spike, and the final choice is an argmax computed by the program, not a competition between neurons. <b>In class-incremental learning this layer is where most of the forgetting happens:</b> training on new digits pushes the old digits' scores down.",
+      status: "built"
+    },
+    trace: {
+      prog: "Eligibility traces", brain: "Synaptic tags",
+      progSub: "one per synapse, per sample", brainSub: "\"this synapse was just involved\"",
+      color: "trace", code: "eprop.py · e1, e1_bias (AGMP Eq. 6)",
+      eq: "e_ji(t) = λ_e·e_ji(t−1) + ψ_j(t)·x_i(t)\nψ(u) = γ·max(0, 1 − |u − θ|/θ)     λ_e = 0.9  γ = 0.3",
+      does: "Each synapse keeps a fading record of \"my input arrived while my neuron was close to firing\". It's a candidate change, waiting for the error signal to say whether to make it.",
+      bio: "Recently active synapses get a temporary tag, and a later signal can turn that tag into a lasting change. Dopamine strengthens a synapse only if it arrives within about 0.3–2 seconds of the activity (Yagishita et al., 2014). Molecular tags can last 1–2 hours (Frey & Morris, 1997).",
+      fid: "close",
+      breaks: "Ours fade within about 10 steps (≈ 110 ms), far shorter than biological tags. ψ, the surrogate gradient, is a mathematical stand-in for how sensitive a spike is to voltage; no specific molecule plays that role.",
+      status: "built"
+    },
+    error: {
+      prog: "Output error", brain: "Prediction error",
+      progSub: "δ(t), from step 11 on", brainSub: "teaching signal",
+      color: "signal", code: "eprop.py · delta = softmax(m) − target (after burn-in)",
+      eq: "δ_k(t) = softmax(m(t))_k − [k = correct digit]\nskipped for the first 10 steps (burn-in)",
+      does: "At each step after the first 10, compares the readout's current opinion with the correct digit, giving 10 numbers: how wrong each digit's score is.",
+      bio: "The nearest brain analog is a prediction-error signal, such as dopamine's reward prediction error: the difference between what was expected and what happened.",
+      fid: "loose",
+      breaks: "This needs the correct answer for every sample. Brains rarely get a labeled answer, and a personal AI learning from someone's life won't either. Removing labels is the self-supervised step planned for later work.",
+      status: "built"
+    },
+    B: {
+      prog: "Random feedback B", brain: "Neuromodulator broadcast",
+      progSub: "256 × 10, fixed forever", brainSub: "dopamine · noradrenaline · ACh",
+      color: "signal", code: "eprop.py · self.B;  L = δ·Bᵀ",
+      eq: "L_j(t) = Σ_k B_jk · δ_k(t)\nB ~ Normal(0, 1/√10), never trained",
+      does: "Sends each hidden neuron a mix of the 10 output errors through a fixed random matrix. That mix is the neuron's learning signal. My runs show it still teaches: each task is learned to 92–100%.",
+      bio: "Diffuse neuromodulator systems broadcast widely: dopamine from the VTA, noradrenaline from the locus coeruleus, acetylcholine from the basal forebrain. Feedback alignment (Lillicrap et al., 2016) showed that random fixed feedback can still teach a network, one proposed answer to how a brain could learn without sending exact weights backward.",
+      fid: "loose",
+      breaks: "Neuromodulators carry a few signals to whole regions; this sends a different 10-number mix to every neuron, and it carries supervised errors, not rewards.",
+      status: "built"
+    },
+    astro: {
+      prog: "Astrocyte gate", brain: "Astrocytes",
+      progSub: "one per hidden neuron · g ∈ [0, 1]", brainSub: "the tripartite synapse",
+      color: "astro", code: "astrocyte.py · Astrocyte.step (AGMP Eqs. 8–9 + gate)",
+      eq: "φ = η_u|u| + η_s Σ|w|·s + η_o·s\na ← λ_a·a + (1 − λ_a)·φ\ng = σ(k_g · (a − μ)/σ_a + β_g)",
+      does: "Tracks each neuron's long-run activity, compares it with the rest of the layer, and turns it into a write permission between 0 (frozen) and 1 (free) that multiplies the neuron's updates.",
+      bio: "Astrocytes are glial cells whose fine processes wrap around synapses. They sense activity through slow calcium signals lasting seconds to minutes and release gliotransmitters such as D-serine, which some forms of long-term potentiation need (Henneberger et al., 2010). They can switch plasticity on or off locally.",
+      fid: "partial",
+      breaks: "One astrocyte per neuron here; a real one covers about 140,000 synapses in rodents and up to around 2 million in humans, spread over many neurons. The layer-wise normalization has no known biological counterpart. <b>First sweep:</b> no setting beat the plain network (best 0.177 vs 0.189), and gating both layers with the slow timescale froze 42% of neurons so new tasks reached only 49%.",
+      status: "test"
+    },
+    optimizer: {
+      prog: "Optimizer", brain: "No counterpart",
+      progSub: "SGD, once per batch", brainSub: "engineering",
+      color: "missing", code: "train.py · torch.optim.SGD / Adam",
+      eq: "w ← w − lr · Σ_t (g · L · e)      lr = 0.05\nonce per batch of 128 samples × 25 steps",
+      does: "Collects the summed update from a whole batch and applies it to every weight at once.",
+      bio: "The learning rate is a crude stand-in for how strongly plasticity acts. Batching has no counterpart: a brain learns one experience at a time, as it happens.",
+      fid: "none",
+      breaks: "Adam's per-weight scaling would cancel the astrocyte gate, which is why the gate experiments use plain SGD.",
+      status: "built"
+    },
+    cascade: {
+      prog: "Cascade synapse", brain: "Synaptic consolidation",
+      progSub: "Benna–Fusi chain per weight", brainSub: "early LTP → late LTP → structure",
+      color: "trace", code: "cascade.py · Cascade.step(), after every update",
+      eq: "C_k du_k/dt = g_(k−1)(u_(k−1) − u_k) + g_k(u_(k+1) − u_k)\nC_k = 2^(k−1)    g_k = 2^−(k−1) / τ₁    w = u_1",
+      does: "Each single-number weight becomes a chain of coupled variables, like beakers of water joined by thinner and thinner tubes. A write lands in the fast first one and slowly leaks into deeper, slower ones, so memories fade as a power law instead of all at once.",
+      bio: "Real synaptic memory moves through stages: early LTP (minutes to hours, using existing proteins), late LTP (needs new proteins), then structural changes to the spine that can last a lifetime.",
+      fid: "partial",
+      breaks: "Built and verified: a single write fades with a log-log slope of −0.50, as Benna & Fusi predict, while a one-variable synapse fades exponentially. Each weight now carries several numbers, which matters for chip memory. <b>Open question:</b> whether it improves retention on the stabilized network. That re-test is running.",
+      status: "test"
+    }
+  };
+  const ORDER = ["input", "w1", "trace", "hidden", "astro", "readout", "error", "B", "optimizer", "cascade"];
+
+  let view = "prog";
+  let selected = "hidden";
+  let step = -1;
+
+  // ---------- network diagram ----------
+  const svg = document.getElementById("net");
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+  const col = c => `var(--${c})`;
+  const groups = {};
+  const part = (id, label) => { const g = el("g", { class: "part", "data-id": id, tabindex: "0", role: "button", "aria-label": label }); groups[id] = g; return g; };
+  const labels = [];
+  const label = (g, x, y, id, anchor = "middle") => {
+    const t = el("text", { x, y, "text-anchor": anchor, class: "lbl" }, g);
+    const s = el("text", { x, y: y + 15, "text-anchor": anchor, class: "sub" }, g);
+    labels.push({ t, s, id });
+  };
+
+  const defs = el("defs", {});
+  const mk = (id, c) => { const m = el("marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, defs); el("path", { d: "M0,0 L10,5 L0,10 z", fill: col(c) }, m); };
+  mk("arr-sig", "signal"); mk("arr-mut", "muted");
+
+  const hiddenY = [78, 120, 162, 204, 246, 288, 330, 372];
+  const readY = Array.from({ length: 10 }, (_, k) => 62 + k * 36);
+  const HX = 470, RX = 735;
+
+  // W1 synapses (lines) + traces (amber dots)
+  const gW1 = part("w1", "Synapses W1");
+  const srcY = [90, 130, 170, 210, 250, 290, 330, 370];
+  el("rect", { class: "hit", x: 205, y: 60, width: 245, height: 335, rx: 10 }, gW1);
+  srcY.forEach((y1, a) => hiddenY.forEach((y2, b) => {
+    if ((a + b) % 3 === 0) el("line", { x1: 200, y1, x2: HX - 15, y2, stroke: col("trace"), "stroke-opacity": 0.28, "stroke-width": 1 }, gW1);
+  }));
+  label(gW1, 330, 418, "w1");
+
+  const gTr = part("trace", "Eligibility traces");
+  el("rect", { class: "hit", x: 268, y: 95, width: 110, height: 270, rx: 10 }, gTr);
+  [[300, 132], [330, 205], [352, 160], [292, 262], [340, 300], [318, 338], [365, 236], [284, 188]].forEach(([x, y]) => {
+    el("circle", { cx: x, cy: y, r: 4.2, fill: col("trace"), class: "glowable", style: "color:var(--trace)" }, gTr);
+  });
+  label(gTr, 323, 380, "trace");
+
+  // Input grid
+  const gIn = part("input", "Event input");
+  el("rect", { class: "hit", x: 22, y: 60, width: 190, height: 335, rx: 10 }, gIn);
+  const lit = new Set([3, 8, 9, 14, 15, 20, 21, 22, 27, 33, 34, 28, 16]);
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 6; c++) {
+    const i = r * 6 + c, on = lit.has(i), off = (i * 7) % 11 === 0;
+    el("rect", { x: 40 + c * 24, y: 80 + r * 37, width: 18, height: 18, rx: 3,
+      fill: on ? col("signal") : off ? col("neuron") : col("surface-2"),
+      "fill-opacity": on ? 0.95 : off ? 0.6 : 1, stroke: col("line") }, gIn);
+  }
+  label(gIn, 117, 418, "input");
+
+  // Optimizer
+  const gOpt = part("optimizer", "Optimizer");
+  el("rect", { x: 640, y: 8, width: 190, height: 40, rx: 8, fill: col("surface-2"), stroke: col("muted"), "stroke-dasharray": "3 3" }, gOpt);
+  el("text", { x: 735, y: 26, "text-anchor": "middle", class: "lbl", style: "font-size:12px" }, gOpt).textContent = "Optimizer (SGD)";
+  el("text", { x: 735, y: 41, "text-anchor": "middle", class: "mono" }, gOpt).textContent = "w ← w − lr·Δw, per batch";
+  el("path", { d: "M660,48 C650,60 640,66 630,74", fill: "none", stroke: col("muted"), "stroke-dasharray": "2 4", "marker-end": "url(#arr-mut)" }, gOpt);
+
+  // Cascade (planned) badge on a synapse
+  const gCas = part("cascade", "Cascade synapse");
+  el("rect", { x: 205, y: 8, width: 175, height: 40, rx: 8, fill: "none", stroke: col("trace") }, gCas);
+  el("text", { x: 292, y: 26, "text-anchor": "middle", class: "lbl", style: "font-size:12px;fill:var(--muted)" }, gCas).textContent = "Cascade synapse";
+  el("text", { x: 292, y: 41, "text-anchor": "middle", class: "mono" }, gCas).textContent = "built · under test";
+  el("line", { x1: 292, y1: 48, x2: 300, y2: 124, stroke: col("trace"), "stroke-dasharray": "3 3" }, gCas);
+
+  // W2 lines (part of readout)
+  const gRead = part("readout", "Readout");
+  el("rect", { class: "hit", x: 485, y: 50, width: 285, height: 360, rx: 10 }, gRead);
+  hiddenY.forEach((y1, a) => readY.forEach((y2, b) => {
+    if ((a * 3 + b) % 4 === 0) el("line", { x1: HX + 15, y1, x2: RX - 12, y2, stroke: col("neuron"), "stroke-opacity": 0.2 }, gRead);
+  }));
+  readY.forEach((y, k) => {
+    el("circle", { cx: RX, cy: y, r: 11, fill: col("surface-2"), stroke: col("neuron"), "stroke-width": 2, class: "glowable", style: "color:var(--neuron)" }, gRead);
+    el("text", { x: RX, y: y + 4, "text-anchor": "middle", style: "font-size:11px;font-family:var(--f-mono)" }, gRead).textContent = k;
+  });
+  el("path", { d: `M${RX + 14},${readY[4] + 18} L840,236`, stroke: col("muted"), "marker-end": "url(#arr-mut)", fill: "none" }, gRead);
+  el("rect", { x: 842, y: 214, width: 130, height: 44, rx: 8, fill: col("surface-2"), stroke: col("line") }, gRead);
+  el("text", { x: 907, y: 233, "text-anchor": "middle", class: "lbl", style: "font-size:12px" }, gRead).textContent = "Answer";
+  el("text", { x: 907, y: 248, "text-anchor": "middle", class: "mono" }, gRead).textContent = "argmax of mean m";
+  label(gRead, RX, 432, "readout");
+
+  // Hidden neurons
+  const gHid = part("hidden", "Hidden layer");
+  el("rect", { class: "hit", x: HX - 28, y: 52, width: 56, height: 345, rx: 10 }, gHid);
+  hiddenY.forEach((y, i) => {
+    el("circle", { cx: HX, cy: y, r: 14, fill: col("neuron"), "fill-opacity": i % 3 === 1 ? 0.95 : 0.35, stroke: col("neuron"), "stroke-width": 2, class: "glowable", style: "color:var(--neuron)" }, gHid);
+  });
+  label(gHid, HX, 432, "hidden");
+
+  // Astrocytes: star shapes beside each hidden neuron
+  const gAst = part("astro", "Astrocyte gate");
+  el("rect", { class: "hit", x: HX + 16, y: 52, width: 44, height: 345, rx: 10 }, gAst);
+  const star = (cx, cy, r1, r2, n) => { let p = ""; for (let i = 0; i < n * 2; i++) { const r = i % 2 ? r2 : r1, a = Math.PI * i / n - Math.PI / 2; p += `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)} `; } return p; };
+  hiddenY.forEach((y, i) => {
+    const cx = HX + 37, cy = y - 9;
+    el("line", { x1: HX + 10, y1: y - 6, x2: cx, y2: cy, stroke: col("astro"), "stroke-width": 1.2 }, gAst);
+    el("polygon", { points: star(cx, cy, 9, 3.6, 6), fill: col("astro"), "fill-opacity": [0.9, 0.5, 0.25, 0.8, 0.4, 0.95, 0.3, 0.6][i], class: "glowable", style: "color:var(--astro)" }, gAst);
+  });
+  label(gAst, HX + 40, 40, "astro");
+
+  // Error box
+  const gErr = part("error", "Output error");
+  el("rect", { x: 842, y: 330, width: 130, height: 50, rx: 8, fill: col("surface-2"), stroke: col("signal") }, gErr);
+  el("text", { x: 907, y: 351, "text-anchor": "middle", class: "lbl", style: "font-size:12px" }, gErr).textContent = "Error δ(t)";
+  el("text", { x: 907, y: 367, "text-anchor": "middle", class: "mono" }, gErr).textContent = "p − correct digit";
+  el("path", { d: `M${RX + 14},${readY[8]} C800,${readY[8]} 800,355 840,355`, fill: "none", stroke: col("signal"), "marker-end": "url(#arr-sig)" }, gErr);
+
+  // Random feedback B
+  const gB = part("B", "Random feedback B");
+  el("path", { d: `M907,382 L907,478 L${HX},478 L${HX},${hiddenY[7] + 18}`, fill: "none", stroke: col("signal"), "stroke-width": 2, "stroke-dasharray": "7 5", "marker-end": "url(#arr-sig)", class: "glowable", style: "color:var(--signal)" }, gB);
+  el("rect", { class: "hit", x: HX - 10, y: 463, width: 460, height: 30, rx: 8 }, gB);
+  el("rect", { x: 620, y: 467, width: 74, height: 22, rx: 5, fill: col("surface"), stroke: col("signal") }, gB);
+  el("text", { x: 657, y: 482, "text-anchor": "middle", style: "font-size:12px;font-family:var(--f-mono);fill:var(--signal)" }, gB).textContent = "× B";
+  label(gB, 657, 506, "B");
+
+  // labels text
+  function relabel() {
+    labels.forEach(({ t, s, id }) => {
+      const p = P[id];
+      t.textContent = view === "prog" ? p.prog : p.brain;
+      s.textContent = view === "prog" ? p.progSub : p.brainSub;
+    });
+    // B label sits on the line: keep it short
+  }
+
+  // ---------- detail panel ----------
+  const detail = document.getElementById("detail");
+  function renderDetail(id) {
+    const p = P[id], f = FID[p.fid], s = STATUS[p.status];
+    detail.innerHTML = `
+      <div class="kind"><i class="sw ${p.color === "missing" ? "missing" : p.color}"></i><span class="eyebrow">${view === "prog" ? "program part" : "brain counterpart"}</span></div>
+      <h3>${view === "prog" ? p.prog : p.brain}<span style="color:var(--muted);font-weight:500"> · ${view === "prog" ? p.brain : p.prog}</span></h3>
+      <div class="eq">${p.eq}</div>
+      <div class="pair">
+        <div class="side prog"><span class="eyebrow">what the code does</span><p>${p.does}</p><span class="mono" style="color:var(--muted)">${p.code}</span></div>
+        <div class="side brain"><span class="eyebrow">in the brain</span><p>${p.bio}</p></div>
+      </div>
+      <div class="fid">Fidelity <span class="dots">${f[0]}</span> ${f[1]} · <span class="pill ${s[1]}" style="vertical-align:1px">${s[0]}</span></div>
+      <p class="breaks"><b>Where it breaks down.</b> ${p.breaks}</p>`;
+  }
+  function select(id) {
+    selected = id;
+    Object.entries(groups).forEach(([k, g]) => g.classList.toggle("sel", k === id));
+    renderDetail(id);
+  }
+  Object.entries(groups).forEach(([id, g]) => {
+    g.addEventListener("click", () => select(id));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(id); } });
+  });
+
+  const bP = document.getElementById("view-prog"), bB = document.getElementById("view-brain");
+  function setView(v) { view = v; bP.setAttribute("aria-pressed", v === "prog"); bB.setAttribute("aria-pressed", v === "brain"); relabel(); renderDetail(selected); try { localStorage.setItem("csnn-view", v); } catch (e) {} }
+  bP.addEventListener("click", () => setView("prog"));
+  bB.addEventListener("click", () => setView("brain"));
+
+  // ---------- stepper ----------
+  const STEPS = [
+    { t: "Input arrives", ids: ["input"], code: "x = spike_input[t]", prog: "2,312 lines each carry a spike or silence for this 12 ms bin.", brain: "Photoreceptors register a change in light; ON or OFF ganglion cells fire." },
+    { t: "Currents flow in", ids: ["input", "w1"], code: "I = fc1(x)", prog: "Each spike is multiplied by its synapse's weight and summed per hidden neuron.", brain: "Neurotransmitter released at each synapse moves the receiving cell's voltage, more for stronger synapses." },
+    { t: "Membranes update", ids: ["hidden"], code: "u = α·u + I − θ·s", prog: "Voltage leaks 10%, adds the input current, and subtracts the threshold if the neuron fired last step.", brain: "Charge leaks out through the membrane while synaptic currents push it up or down." },
+    { t: "Neurons fire", ids: ["hidden"], code: "ψ = surrogate(u); s = (u > θ)", prog: "Neurons above threshold emit a spike. ψ records how close each neuron came, for learning.", brain: "Cells that reach threshold fire an action potential down the axon." },
+    { t: "Readout accumulates", ids: ["readout"], code: "m = κ·m + fc2(s)", prog: "Each digit's readout neuron adds evidence from the hidden spikes.", brain: "Decision neurons integrate evidence for each option." },
+    { t: "Traces update", ids: ["trace", "w1"], code: "e1 = λ_e·e1 + ψ·x", prog: "Every synapse updates its fading record of input-while-near-firing.", brain: "Recently active synapses carry a short-lived tag." },
+    { t: "Astrocytes update", ids: ["astro", "hidden"], code: "g = astro_h.step(u, x·|W1|ᵀ, s)", prog: "Each astrocyte folds this step's activity into its slow state and recomputes the gate.", brain: "Astrocytes integrate activity through slow calcium signals." },
+    { t: "Error computed", ids: ["readout", "error"], code: "delta = softmax(m) − target", prog: "From step 11 on, compare the readout with the correct digit.", brain: "A prediction-error signal: expected versus actual." },
+    { t: "Error broadcast", ids: ["error", "B", "astro"], code: "L = (delta @ Bᵀ) · g", prog: "Send the error back through fixed random B, then scale by each neuron's gate.", brain: "Neuromodulators spread the teaching signal; astrocytes decide which synapses may use it." },
+    { t: "Updates accumulate", ids: ["trace", "w1", "B"], code: "gW1 += L × e1", prog: "Learning signal × trace, summed into each synapse's pending update. Nothing changes yet.", brain: "Tagged synapses that receive the signal begin to change." },
+    { t: "End of batch: weights change", ids: ["optimizer", "w1", "readout"], code: "optimizer.step()", prog: "After 25 steps × 128 samples, SGD applies all the summed updates at once.", brain: "No direct counterpart: brains change synapses continuously, one experience at a time." }
+  ];
+  const list = document.getElementById("steplist"), now = document.getElementById("stepnow");
+  STEPS.forEach((s, i) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.innerHTML = `<span class="n">${String(i + 1).padStart(2, "0")}</span><span>${s.t}</span>`;
+    b.addEventListener("click", () => setStep(i)); li.appendChild(b); list.appendChild(li);
+  });
+  function setStep(i) {
+    step = i;
+    [...list.querySelectorAll("button")].forEach((b, k) => { if (k === i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+    if (i < 0) {
+      svg.classList.remove("dimmed"); Object.values(groups).forEach(g => g.classList.remove("lit"));
+      now.innerHTML = `<h3>Showing every part</h3><p class="hint" style="grid-column:1/-1">Press Next step to walk through one time step. Each step lights up the parts it touches.</p>`;
+      return;
+    }
+    const s = STEPS[i];
+    svg.classList.add("dimmed");
+    Object.entries(groups).forEach(([k, g]) => g.classList.toggle("lit", s.ids.includes(k)));
+    now.innerHTML = `<h3>${i + 1}. ${s.t} <span class="mono" style="color:var(--muted);font-weight:400">${s.code}</span></h3>
+      <div class="side prog"><span class="eyebrow">program</span><p>${s.prog}</p></div>
+      <div class="side brain"><span class="eyebrow">brain</span><p>${s.brain}</p></div>`;
+    select(s.ids[s.ids.length > 1 && s.ids[0] === "input" ? 1 : 0]);
+  }
+  document.getElementById("step-next").addEventListener("click", () => setStep(Math.min(STEPS.length - 1, step + 1)));
+  document.getElementById("step-prev").addEventListener("click", () => setStep(Math.max(0, step - 1)));
+  document.getElementById("step-off").addEventListener("click", () => setStep(-1));
+
+  // ---------- brain map ----------
+  const bs = document.getElementById("brain");
+  const bel = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || bs).appendChild(e); return e; };
+  const bdefs = bel("defs", {});
+  const bm = bel("marker", { id: "barr", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto" }, bdefs);
+  bel("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--neuron)" }, bm);
+  const bm2 = bel("marker", { id: "barr2", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto" }, bdefs);
+  bel("path", { d: "M0,0 L10,5 L0,10 z", fill: "var(--signal)" }, bm2);
+
+  // silhouette
+  bel("path", { d: "M120,200 C110,120 180,58 290,48 C400,38 500,62 548,120 C590,170 585,235 545,262 C520,280 480,282 455,280 C430,300 380,306 340,296 C300,312 250,312 215,296 C170,290 128,256 120,200 Z", fill: "var(--surface-2)", stroke: "var(--line)", "stroke-width": 2 });
+  bel("path", { d: "M455,280 C470,300 520,312 545,296 C575,278 570,250 548,258", fill: "var(--surface-2)", stroke: "var(--line)", "stroke-width": 2 }); // cerebellum
+  bel("path", { d: "M395,288 C392,320 398,360 405,395 L432,395 C428,360 426,322 430,290", fill: "var(--surface-2)", stroke: "var(--line)", "stroke-width": 2 }); // brainstem
+  // gyri hints
+  ["M200,110 C230,140 220,170 250,190", "M300,70 C310,110 290,140 320,170", "M400,70 C390,110 410,140 395,175", "M480,110 C470,140 490,170 470,200"].forEach(d => bel("path", { d, fill: "none", stroke: "var(--line)", "stroke-width": 1.5 }));
+  // eye
+  bel("circle", { cx: 60, cy: 238, r: 24, fill: "var(--surface-2)", stroke: "var(--line)", "stroke-width": 2 });
+
+  const REG = {
+    retina: { id: "input", name: "Retina", where: "Back of the eye", path: () => bel("circle", { cx: 60, cy: 238, r: 13, class: "rfill", fill: "var(--signal)", "fill-opacity": 0.35, stroke: "var(--signal)", "stroke-width": 2 }), lx: 60, ly: 285 },
+    thalamus: { id: null, missing: true, name: "Thalamus (LGN)", where: "Deep, center", text: "In a real brain, visual signals pass through the thalamus's lateral geniculate nucleus before reaching cortex. The thalamus also gates attention. This network skips it and wires the input straight to the hidden layer.", path: () => bel("ellipse", { cx: 340, cy: 190, rx: 36, ry: 20, class: "rfill", fill: "var(--missing)", "fill-opacity": 0.15, stroke: "var(--missing)", "stroke-dasharray": "5 4", "stroke-width": 2 }), lx: 340, ly: 210 },
+    cortex: { id: "hidden", name: "Visual cortex", where: "Occipital lobe, back of the head", path: () => bel("path", { d: "M470,120 C520,140 545,190 530,240 C505,250 480,240 470,215 C462,180 455,150 470,120 Z", class: "rfill", fill: "var(--neuron)", "fill-opacity": 0.3, stroke: "var(--neuron)", "stroke-width": 2 }), lx: 500, ly: 185 },
+    parietal: { id: "readout", name: "Parietal / prefrontal decision areas", where: "Top and front", path: () => bel("path", { d: "M330,62 C380,55 430,62 455,85 C440,115 400,125 360,118 C335,105 325,85 330,62 Z", class: "rfill", fill: "var(--neuron)", "fill-opacity": 0.22, stroke: "var(--neuron)", "stroke-width": 2, "stroke-dasharray": "1 0" }), lx: 392, ly: 94 },
+    hippo: { id: null, missing: true, name: "Hippocampus", where: "Medial temporal lobe", text: "Stores new experiences fast and replays them, especially during sleep, so the cortex can learn new things without overwriting old ones (complementary learning systems: McClelland, McNaughton & O'Reilly, 1995). This is the brain's best-known answer to the forgetting this network shows. Replay methods are also the strongest class-incremental baselines: GEM scores 88.5% in AGMP's own table.", path: () => bel("path", { d: "M250,240 C275,225 320,228 345,245 C330,262 290,262 262,256 Z", class: "rfill", fill: "var(--missing)", "fill-opacity": 0.15, stroke: "var(--missing)", "stroke-dasharray": "5 4", "stroke-width": 2 }), lx: 298, ly: 248 },
+    vta: { id: "B", name: "VTA · locus coeruleus", where: "Midbrain and brainstem", path: () => bel("ellipse", { cx: 412, cy: 300, rx: 18, ry: 13, class: "rfill", fill: "var(--signal)", "fill-opacity": 0.35, stroke: "var(--signal)", "stroke-width": 2 }), lx: 412, ly: 340 },
+    astro: { id: "astro", name: "Astrocytes", where: "Throughout the brain, wrapped around synapses", path: () => { const g = bel("g", {}); [[175, 150], [235, 95], [285, 160], [365, 150], [445, 160], [505, 220], [200, 230], [430, 230]].forEach(([x, y]) => bel("polygon", { points: star(x, y, 7, 2.8, 6), class: "rfill", fill: "var(--astro)", "fill-opacity": 0.35, stroke: "var(--astro)", "stroke-width": 1 }, g)); return g; }, lx: 175, ly: 175 }
+  };
+  // pathways: our path solid, bypassed thalamus dashed
+  bel("path", { d: "M84,236 C150,230 250,200 303,192", fill: "none", stroke: "var(--missing)", "stroke-dasharray": "4 4", "stroke-width": 2 });
+  bel("path", { d: "M377,190 C420,188 450,186 468,186", fill: "none", stroke: "var(--missing)", "stroke-dasharray": "4 4", "stroke-width": 2 });
+  bel("path", { d: "M84,232 C160,150 330,140 462,175", fill: "none", stroke: "var(--neuron)", "stroke-width": 2.2, "marker-end": "url(#barr)" });
+  bel("path", { d: "M480,128 C470,100 455,92 458,92", fill: "none", stroke: "var(--neuron)", "stroke-width": 2.2, "marker-end": "url(#barr)" });
+  bel("path", { d: "M400,288 C370,250 380,200 415,130", fill: "none", stroke: "var(--signal)", "stroke-width": 1.8, "stroke-dasharray": "6 4", "marker-end": "url(#barr2)" });
+  bel("path", { d: "M425,288 C445,250 470,230 488,222", fill: "none", stroke: "var(--signal)", "stroke-width": 1.8, "stroke-dasharray": "6 4", "marker-end": "url(#barr2)" });
+
+  const regionEls = {};
+  Object.entries(REG).forEach(([key, r]) => {
+    const g = bel("g", { class: "region", tabindex: "0", role: "button", "aria-label": r.name });
+    const shape = r.path(); g.appendChild(shape);
+    regionEls[key] = g;
+    g.addEventListener("click", () => selectRegion(key));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectRegion(key); } });
+  });
+  // region labels
+  const rlab = [["Retina", 60, 282, "start"], ["Thalamus", 340, 194, "middle"], ["Visual cortex", 590, 112, "middle"], ["Decision areas", 392, 40, "middle"], ["Hippocampus", 250, 282, "middle"], ["VTA · LC", 450, 312, "start"], ["Astrocytes", 150, 128, "middle"]];
+  rlab.forEach(([t, x, y, a]) => { const e = bel("text", { x, y, "text-anchor": a === "start" && x < 100 ? "middle" : a, style: "font-size:12px;font-weight:700;pointer-events:none" }); e.textContent = t; });
+  bel("text", { x: 20, y: 412, style: "font-size:11px;fill:var(--muted)" }).textContent = "Solid magenta: the path this network models.  Dashed grey: skipped or missing.  Dashed cyan: broadcast signals.";
+
+  const rcard = document.getElementById("rcard");
+  function selectRegion(key) {
+    const r = REG[key];
+    Object.entries(regionEls).forEach(([k, g]) => g.classList.toggle("sel", k === key));
+    if (r.missing) {
+      rcard.innerHTML = `<span class="eyebrow">${r.where} · not in the network</span><h3>${r.name}</h3><p>${r.text}</p><span class="fid"><span class="dots">○○○</span> not modeled</span>`;
+      return;
+    }
+    const p = P[r.id], f = FID[p.fid];
+    rcard.innerHTML = `<span class="eyebrow">${r.where}</span><h3>${r.name}</h3>
+      <p>${p.bio}</p>
+      <div class="side prog"><span class="eyebrow">in the network: ${p.prog}</span><p>${p.does}</p></div>
+      <span class="fid">Fidelity <span class="dots">${f[0]}</span> ${f[1]}</span>
+      <button type="button" class="btn" data-open="${r.id}" style="align-self:flex-start">Open in the diagram</button>`;
+    rcard.querySelector("[data-open]").addEventListener("click", () => { select(r.id); document.getElementById("sys-h").scrollIntoView({ behavior: "smooth" }); });
+  }
+
+  // ---------- timescale ladder ----------
+  const ls = document.getElementById("ladder");
+  const lel = (tag, attrs, txt) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt) e.textContent = txt; ls.appendChild(e); return e; };
+  const X0 = 190, X1 = 870, LMIN = 0, LMAX = 8; // 1 ms .. 1e8 ms (~28 h)
+  const lx = ms => X0 + (Math.log10(ms) - LMIN) / (LMAX - LMIN) * (X1 - X0);
+  const ticks = [[1, "1 ms"], [10, "10 ms"], [100, "100 ms"], [1000, "1 s"], [1e4, "10 s"], [6e4, "1 min"], [3.6e6, "1 h"], [8.64e7, "1 day"]];
+  ticks.forEach(([ms, t]) => {
+    lel("line", { x1: lx(ms), y1: 30, x2: lx(ms), y2: 300, stroke: "var(--line)", "stroke-width": 1 });
+    lel("text", { x: lx(ms), y: 318, "text-anchor": "middle", style: "font-size:11px;fill:var(--muted);font-family:var(--f-mono)" }, t);
+  });
+  lel("rect", { x: X0, y: 11, width: 9, height: 9, rx: 2, fill: "var(--neuron)" });
+  lel("text", { x: X0 + 14, y: 20, style: "font-size:11px;fill:var(--muted)" }, "this network");
+  lel("rect", { x: X0 + 104, y: 11, width: 9, height: 9, rx: 2, fill: "var(--muted)", "fill-opacity": 0.6 });
+  lel("text", { x: X0 + 118, y: 20, style: "font-size:11px;fill:var(--muted)" }, "brain");
+  const rows = [
+    ["Time step", [12, 12], [1, 2], "12 ms bins", "~1 ms spike, continuous"],
+    ["Membrane leak", [114, 114], [10, 30], "≈ 110 ms", "10–30 ms"],
+    ["Eligibility trace", [114, 114], [300, 7.2e6], "≈ 110 ms", "0.3 s (dopamine window) – 2 h (tags)"],
+    ["Astrocyte state", [5700, 57000], [1000, 600000], "≈ 6–57 s", "seconds – minutes"],
+    ["Stored memory", [28000, 28000], [3.6e6, 1e8], "≈ 1 task, ~28 s", "hours → lifetime"]
+  ];
+  rows.forEach(([name, ours, brain, oursT, brainT], i) => {
+    const y = 52 + i * 52;
+    lel("text", { x: 14, y: y + 14, style: "font-size:13px;font-weight:700" }, name);
+    const bx = lx(brain[0]), bw = Math.max(6, lx(brain[1]) - bx);
+    lel("rect", { x: bx, y: y + 16, width: bw, height: 10, rx: 5, fill: "var(--muted)", "fill-opacity": 0.45 });
+    const after = bx + bw + 6, fits = after + brainT.length * 6 < X1;
+    lel("text", { x: fits ? after : bx - 6, y: y + 25, "text-anchor": fits ? "start" : "end", style: "font-size:10.5px;fill:var(--muted)" }, brainT);
+    const ox = lx(ours[0]), ow = Math.max(8, lx(ours[1]) - ox);
+    lel("rect", { x: ox, y: y, width: ow, height: 10, rx: 5, fill: "var(--neuron)" });
+    lel("text", { x: ox + ow + 6, y: y + 9, style: "font-size:10.5px;fill:var(--ink)" }, oursT);
+    if (i === 4) lel("text", { x: X1 + 2, y: y + 25, style: "font-size:13px;fill:var(--muted)" }, "→");
+  });
+
+  // ---------- mapping table ----------
+  const tb = document.getElementById("maptable");
+  ORDER.forEach(id => {
+    const p = P[id], f = FID[p.fid], s = STATUS[p.status];
+    const tr = document.createElement("tr"); tr.tabIndex = 0;
+    tr.innerHTML = `<td><b>${p.prog}</b><br><span class="hint">${p.progSub}</span></td><td>${p.brain}<br><span class="hint">${p.brainSub}</span></td><td><span class="dots">${f[0]}</span><br><span class="hint">${f[1]}</span></td><td class="mono" style="color:var(--muted)">${p.code}</td><td><span class="pill ${s[1]}">${s[0]}</span></td>`;
+    const go = () => { select(id); setStep(-1); document.getElementById("sys-h").scrollIntoView({ behavior: "smooth" }); };
+    tr.addEventListener("click", go);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+    tb.appendChild(tr);
+  });
+
+  // ---------- gaps ----------
+  const GAPS = [
+    ["Hippocampus and sleep replay", "Fast storage of new experiences, replayed later so the cortex can learn new things without overwriting old ones. This is the brain's main known answer to class-incremental forgetting, the wall the gate sweep hit.", true],
+    ["Recurrent connections", "Cortical neurons talk to their neighbours, which lets activity persist and settle into stored patterns (attractors). My follow-up ideas about holding several interpretations at once depend on this. The hidden layer here is purely feedforward."],
+    ["Inhibitory interneurons", "About a fifth of cortical neurons are inhibitory, and they shape competition, timing and which memories win. Here, inhibition only exists as negative weights."],
+    ["Dendrites", "Pyramidal cells compute in their branches, and branches can learn separately. Each neuron here is a single point."],
+    ["Thalamus", "The relay and attention gate between the senses and cortex. The input here goes straight to the hidden layer."],
+    ["Several neuromodulators", "Dopamine, noradrenaline, acetylcholine and serotonin carry different signals (reward, surprise, uncertainty, mood). Here there's one supervised error. A priority signal from the user, planned for later work, would add a second one."],
+    ["Learning without labels", "The brain mostly learns by predicting what comes next. Every update here needs the correct digit."],
+    ["Continuous time, one experience at a time", "The network ticks in 12 ms steps and learns from batches of 128 samples at once."]
+  ];
+  const gw = document.getElementById("gaps");
+  GAPS.forEach(([t, d, key]) => { const g = document.createElement("div"); g.className = "gap" + (key ? " key" : ""); g.innerHTML = `<h3>${t}</h3><p>${d}</p>`; gw.appendChild(g); });
+
+  // ---------- init ----------
+  let saved = null; try { saved = localStorage.getItem("csnn-view"); } catch (e) {}
+  setView(saved === "brain" ? "brain" : "prog");
+  select("hidden");
+  setStep(-1);
+  selectRegion("hippo");
+})();
+</script>
+
+</body></html>
+</body>
+</html>
