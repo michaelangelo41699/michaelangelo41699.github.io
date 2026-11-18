@@ -19,7 +19,8 @@ const ICONS = {
     check: '<path d="M5 12.5l4.5 4.5L19 7.5" fill="none"/>',
     person: '<circle cx="12" cy="8" r="4" fill="none"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none"/>',
     code: '<path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15" fill="none"/>',
-    arrow: '<path d="M7 17L17 7M9 7h8v8" fill="none"/>'
+    arrow: '<path d="M7 17L17 7M9 7h8v8" fill="none"/>',
+    download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" fill="none"/>'
 };
 
 export const icon = (name) =>
