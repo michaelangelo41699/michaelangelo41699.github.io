@@ -127,154 +127,10 @@ const RESUME_HTML = `
 `;
 
 
-// 2. Full HTML for Alexandria (Restored)
-const ALEXANDRIA_FULL_HTML = `
-    <h2>Alexandria: AI-Powered Study &amp; Assessment Platform</h2>
-    <p>A learning platform that turns raw class materials into personalized quizzes and study tools. I designed and deployed it end to end, which meant working across backend reliability, applied machine learning, and mobile UX.</p>
-    
-    <h3>What I built:</h3>
-    <ul>
-        <li>Full-Stack Architecture: Designed system using React Native (Mobile) and a high-performance FastAPI backend.</li>
-        <li>Scalable AI Workflow: Architected scalable backend services with background workers and Redis queues to handle long-running AI tasks (OCR extraction, quiz generation) without blocking user experience.</li>
-        <li>Data Pipeline Integrity: Implemented robust data pipelines for parsing unstructured academic content into structured question formats (MCQ, true/false, open-ended) with validation layers to prevent malformed outputs.</li>
-        <li>Production Deployment: Deployed and managed cloud infrastructure (API services, workers, storage, queues), including monitoring, timeout mitigation, and performance tuning under real usage constraints.</li>
-        <li>Mobile UX: Built a mobile-first user experience emphasizing clarity, feedback loops, retakes, and progress tracking—bridging AI systems with human-centered design.</li>
-    </ul>
+// Project content lives in js/projects.js.
 
-    <div class="screenshot-container">
-    <img src="../alexandria_screenshot/screenshot1.jpg" alt="Alexandria main dashboard">
-    <img src="../alexandria_screenshot/screenshot2.jpg" alt="Alexandria quiz generation">
-    <img src="../alexandria_screenshot/screenshot3.jpg" alt="Alexandria mobile assessment">
-    <img src="../alexandria_screenshot/screenshot4.jpg" alt="Ask Alexandria Screenshot">
-    </div>
-
-    <br>
-    <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/Alexandria-Learning-Ai/alexandria-frontend', '_blank')">View Source Code</button>
-    </div>
-`;
-
-// 3. Full HTML for Guardian (Restored)
-const GUARDIAN_FULL_HTML = `
-    <h2>Shield-AI: Privacy-First Behavioral Awareness &amp; Coaching</h2>
-    <p>A privacy-first app that looks at how someone actually uses their phone (notifications, app usage, time of day) to surface patterns, emotional drift, and gaps between their goals and their behavior, without asking them to log anything.</p>
-    
-    <h3>What I built:</h3>
-    <ul>
-        <li>Privacy-Preserving Logging: Architected a dual-pipeline logging system (on-device + background processing) capturing notifications, app usage, and temporal behavior signals while minimizing data exposure.</li>
-        <li>Custom ML Inference: Built a custom ML inference pipeline combining fine-tuned language models and rule-based reasoning to classify emotional states, influence tactics, and behavioral patterns in real time.</li>
-        <li>Domain-Specific Classifiers: Designed and trained domain-specific classifiers using curated and synthetic datasets (emotion detection, persuasion techniques, misinformation signals), including label schema design and evaluation loops.</li>
-        <li>Data Isolation: Implemented on-device data storage and analysis with strict separation between raw signals and derived insights, prioritizing user privacy and explainability.</li>
-        <li>Coaching Layer: Developed a coaching layer that translates abstract model outputs into human-readable insights and actionable interventions, closing the loop between inference and behavior change.</li>
-        <li>Backend Deployment: Deployed backend services supporting inference, aggregation, and daily learning jobs, with health checks, logging, and failure handling.</li>
-    </ul>
-
-    <div class="screenshot-container">
-    <img src="../ShieldAI_screenshot/ShieldAIapp.png" alt="Shield Log In">
-    <img src="../ShieldAI_screenshot/ShieldAIapp2.png" alt="Shield AI Onboarding">
-    <img src="../ShieldAI_screenshot/ShieldAIapp3.png" alt="Shield AI Home">
-    <img src="../ShieldAI_screenshot/ShieldAIapp4.png" alt="Shield AI Goal">
-    <img src="../ShieldAI_screenshot/ShieldAIapp5.png" alt="Shield AI Analyzer">
-    </div>
-
-    <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/michaelangelo41699/shield-ai', '_blank')">View Source Code</button>
-    </div>
-`;
-
-// 4. Full HTML for Joy
-const JOY_FULL_HTML = `
-    <h2>Joy: An AI Companion for Self-Awareness</h2>
-    <p>Joy grew out of Shield-AI. It's a desktop-first assistant that pays attention to what you're working on, remembers context, and points out when you're drifting from the person you said you want to be. It can also act for you through voice, the browser, phone calls, and smart devices, across desktop, mobile, and the cloud from a single backend.</p>
-    
-    <h3>What I built:</h3>
-    <ul>
-        <li>Multi-Client Architecture: Electron + React desktop app, React Native (Expo) mobile app, and a browser extension, all synced through a Cloudflare Workers backend with Durable Objects (one per user) and a D1 database.</li>
-        <li>Long-Term Memory: Joy builds a categorized memory (preferences, habits, people, goals) from conversation and observed behavior, with search, manual editing, and cloud sync.</li>
-        <li>Goals & Identity Drift: Detects objectives mentioned in conversation for one-click promotion, and tracks identity goals ("be a patient parent") on an aligned-to-drifting scale with 6-week trend lines.</li>
-        <li>Roadmaps: Generates multi-month plans broken into dependent tasks that unlock as earlier steps are completed, with progress tracking and a "what's next" queue.</li>
-        <li>Joy's Desk: An inbox of awareness items plus AI-generated research reports, study plans, and data views delivered as cards.</li>
-        <li>Behavioral Suggestions: A browser extension feeds activity signals into "Fuel" suggestions the user can accept or reject, which trains future recommendations.</li>
-        <li>Voice & Agentic Control: Real-time voice pipeline (AudioWorklet capture → edge VoiceGateway → speech models), a computer-use agent for screenshot-driven desktop control, phone calls to saved contacts, and smart device control.</li>
-        <li>Native Performance: Rust (NAPI-RS) module for low-latency audio playback and image hashing inside Electron.</li>
-    </ul>
-
-    <div class="screenshot-container wide">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215859.png" alt="Joy's Desk inbox and generated reports">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215455.png" alt="Joy goals noticed in conversation">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215357.png" alt="Identity tracking with drift detection">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215548.png" alt="Roadmaps overview">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215653.png" alt="Roadmap progress and next tasks">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20215938.png" alt="Joy's Memory">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20220018.png" alt="Fuel suggestions observed from browser activity">
-    <img src="../joyScreenshots/Screenshot%202026-10-05%20220103.png" alt="Joy's Phone Book and device control">
-    </div>
-`;
-
-// 5. Full HTML for the neuromorphic research project
-const NEUROMORPHIC_FULL_HTML = `
-    <h2>Neuromorphic Memory: Spiking Networks That Don't Forget</h2>
-    <p>Teach today's AI something new and it tends to overwrite what it already knew. This is called catastrophic forgetting. Brains don't do this, partly because a synapse isn't a single number: memories settle in over several stages. My research asks whether brain-like mechanisms can give a spiking neural network the same ability, using only learning rules that a neuromorphic chip could run locally.</p>
-
-    <h3>The question:</h3>
-    <p>Can an astrocyte-style gate, which decides <em>when</em> a synapse may change, combined with multi-timescale cascade synapses, which decide <em>how long</em> a change lasts, reduce forgetting in a spiking network? The network learns with a local rule and is never told which task it's on.</p>
-
-    <h3>What I built:</h3>
-    <ul>
-        <li>Spiking Network &amp; Data: A leaky integrate-and-fire network trained on N-MNIST, real event-camera recordings (2,312 inputs over 25 time steps), split into 5 tasks learned one after another.</li>
-        <li>Local Learning, by Hand: e-prop written without autograd, so each synapse learns only from information it can see. Verified against backpropagation through time, with an exact match in the reference case.</li>
-        <li>Astrocyte Gate: Rebuilt astrocyte-modulated plasticity (AGMP; Dong &amp; He, 2026) from its published equations, since no code was released.</li>
-        <li>Cascade Synapses: Each weight becomes a chain of coupled variables (Benna &amp; Fusi, 2016). Verified that a single memory fades as a power law (log-log slope −0.50) instead of exponentially.</li>
-        <li>Experiment Pipeline: GPU training on Google Colab with multi-seed sweeps, two scoring modes, and reproducibility logging (weight hashes and environment records).</li>
-    </ul>
-
-    <h3>Results so far:</h3>
-    <ul>
-        <li>A plain spiking network forgets almost completely: about 19% final accuracy across 10 digits, the textbook catastrophic-forgetting result.</li>
-        <li>A homeostatic rule that keeps neurons from going silent cut idle neurons from about half the layer to under 10%. It also raised accuracy when each task is tested on its own two digits from 0.87 to 0.95 (3 seeds).</li>
-        <li>Next: re-testing the gate and cascade synapses on this stronger baseline, then longer task sequences, where a power-law memory should matter most.</li>
-    </ul>
-
-    <div class="screenshot-container wide">
-    <img src="neuromorphic/network.jpg" alt="Diagram of the spiking network: event inputs, synapses, spiking neurons with astrocytes, readout, and error feedback">
-    <img src="neuromorphic/brain.jpg" alt="Schematic brain showing which regions each part of the network stands in for">
-    <img src="neuromorphic/cascade_decay.png" alt="Forgetting curves of one cascade synapse: one variable fades exponentially, longer chains follow a power law">
-    </div>
-
-    <div class="contact-buttons">
-        <button onclick="window.open('neuromorphic/anatomy.html', '_blank')">Explore the interactive brain map</button>
-    </div>
-    <p style="font-size: 0.85em; color: #aaa;">Research in progress. The code is private for now.</p>
-`;
-
-const PORTFOLIO_FULL_HTML = `
-    <h2>Interactive 3D Portfolio</h2>
-    <p>The site you're on: a portfolio built around a 3D brain you can explore, built with Three.js.</p>
-    
-    <h3>How it works:</h3>
-    <ul>
-        <li>Three.js Engine:  Built with a custom rendering loop, implementing LERP-based camera transitions for smooth "zoom-to-reveal" navigation between content nodes.</li>
-        <li>Blender Pipeline: Assets (including the central cognitive model) were sculpted, retopologized, and UV-mapped in Blender specifically for GLTF/GLB web optimization.</li>
-        <li>Hybrid UI System: Integrated a CSS2DRenderer layer that allows standard HTML/CSS to be projected into 3D space, ensuring SEO-friendliness and accessibility without sacrificing the 3D aesthetic.</li>
-        <li>Modular Architecture: Developed a data-driven content system using ES6 modules, allowing for instant portfolio updates via a central lookup table.</li>
-    </ul>
-
-    <p style="font-size: 0.85em; color: #aaa;">Brain model: <a href="https://sketchfab.com/3d-models/cyber-brain-ai-5c8bf975736b457eacf9b4b2212f63db" target="_blank" style="color: #99ccff;">"Cyber brain AI"</a> by <a href="https://sketchfab.com/3dUVpro" target="_blank" style="color: #99ccff;">3dUVpro</a>, licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #99ccff;">CC BY 4.0</a>.</p>
-    
-    <div class="contact-buttons">
-        <button onclick="window.open('https://github.com/michaelangelo41699/michaelangelo41699.github.io', '_blank')">View Source Code</button>
-    </div>
-`;
-
-
-// --- Project Details Lookup Table ---
-// CRITICAL: All full HTML constants are correctly mapped here.
+// --- Detail pages opened outside the project deck ---
 export const PROJECT_DETAILS = {
-    ALEXANDRIA: ALEXANDRIA_FULL_HTML,
-    GUARDIAN: GUARDIAN_FULL_HTML,
-    JOY: JOY_FULL_HTML,
-    NEUROMORPHIC: NEUROMORPHIC_FULL_HTML,
-    PORTFOLIO: PORTFOLIO_FULL_HTML,
     RESUME: RESUME_HTML,
 };
 
@@ -325,63 +181,13 @@ export const CAMERA_POSITIONS = {
     },
     
     // --- PROJECTS ---
+    // The project deck (js/projects.js) is shown instead of a floating card here.
     PROJECTS: {
-        pos: new THREE.Vector3(-2.5, -1, 0), 
-        target: new THREE.Vector3(-0.5, -0.5, 0),
+        pos: new THREE.Vector3(-2.9, -0.9, 1.4),
+        target: new THREE.Vector3(-0.4, -0.45, 1.4),
         contentPos: new THREE.Vector3(4.5, 2, 0),
-        offset: ['-100%', '-50%'], 
-        html: `
-            <h2>Projects</h2>
-            <p>Things I've built, and the questions behind them:</p>
-            <ul style="list-style: none; padding-left: 0;">
-
-                <li onclick="openProject('NEUROMORPHIC')"
-                    style="cursor: pointer; color: #99ccff; transition: color 0.2s;">
-                     Neuromorphic Memory (Research): A brain-inspired spiking network that learns new tasks without overwriting old ones. [Read more]
-                </li>
-                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Local learning (e-prop), an astrocyte gate, and cascade synapses in PyTorch.</li>
-                    <li>An interactive brain map of the model, part by part.</li>
-                </ul>
-
-                <li onclick="openProject('ALEXANDRIA')"
-                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                     Alexandria (AI Study Platform): Turns raw class materials into personalized quizzes and study tools. [Read more]
-                </li>
-                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Built full-stack with React Native, Tamagui, and FastAPI.</li>
-                    <li>Scalable backend with Redis queues, AWS, and Render.</li>
-                </ul>
-                
-                <li onclick="openProject('GUARDIAN')" 
-                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                     Shield (Behavioral Awareness): A privacy-first app that helps people notice patterns and emotional drift in their own behavior. [Read more]
-                </li>
-                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Privacy-aware ML, with data kept on the device.</li>
-                    <li>Dual-pipeline logging of behavior over time.</li>
-                </ul>
-                
-                <li onclick="openProject('JOY')" 
-                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                     Joy (AI Companion): An assistant that remembers context, tracks goals and identity drift, and can act for you by voice. [Read more]
-                </li>
-                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Electron + React desktop, React Native mobile, browser extension.</li>
-                    <li>Cloudflare Workers, Durable Objects, D1; Rust native module.</li>
-                </ul>
-                
-                <li onclick="openProject('PORTFOLIO')" 
-                    style="cursor: pointer; color: #99ccff; transition: color 0.2s; margin-top: 15px;">
-                     This 3D Portfolio: The site you're exploring right now, built around a 3D brain. [Read more]
-                     </li>
-                <ul style="font-size: 0.9em; margin-top: 5px; margin-left: 20px; color: #33ff99;">
-                    <li>Three.js with smooth camera navigation and a Blender-optimized brain model.</li>
-                    <li>Real HTML text placed in 3D space, so it stays readable and searchable.</li>
-                </ul>
-            </ul>
-            <p style="font-size: 0.9em; color: #aaa; margin-top: 10px;">Click any project to read more.</p>
-        `
+        offset: ['-100%', '-50%'],
+        html: ''
     },
     
     // --- CONTACT (Unchanged) ---
