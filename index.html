@@ -33,7 +33,7 @@
             align-items: center;
             flex-direction: column;
             font-family: 'Courier New', monospace;
-            transition: opacity 0.8s ease-in-out;
+            transition: opacity 0.45s ease-in-out;
         }
 
         .loader-content {
@@ -115,6 +115,8 @@
 
 <section id="about-panel" aria-labelledby="about-title" hidden></section>
 
+<section id="contact-panel" aria-labelledby="contact-title" hidden></section>
+
 <section id="project-deck" aria-labelledby="deck-title" hidden></section>
 
 <div id="lightbox" hidden>
@@ -124,7 +126,7 @@
 </div>
 
 <div id="ui-menu">
-    <button data-target="OVERVIEW">Home</button>
+    <button data-target="OVERVIEW" aria-current="page">Home</button>
     <button data-target="ABOUT">About</button>
     <button data-target="PROJECTS">Projects</button>
     <button data-target="CONTACT">Contact</button>
@@ -139,6 +141,7 @@
     import { PROJECTS, getProject, renderDeck, renderCaseStudy } from './js/projects.js';
     import { renderHome } from './js/home.js';
     import { renderAbout, EXTRA_REGIONS } from './js/about.js';
+    import { renderContact, copyText, icon, CONTACT } from './js/contact.js';
 
     // --- GLOBAL VARIABLES ---
     let brain, scene, camera, renderer, labelRenderer, controls;
@@ -148,12 +151,13 @@
     let currentSection = 'OVERVIEW'; 
     let currentTarget = CAMERA_POSITIONS.OVERVIEW;
     let transitionInProgress = false;
-    const DATA_PROBE_DELAY = 1000; 
+    const DATA_PROBE_DELAY = 550; 
     
     // Project deck and brain highlights
     const deckEl = document.getElementById('project-deck');
     const homeEl = document.getElementById('home-hero');
     const aboutEl = document.getElementById('about-panel');
+    const contactEl = document.getElementById('contact-panel');
     let glowIds = [];      // regions lit by the About page (timeline or a skill)
     let skillIds = null;   // set while a skill chip is selected
     const mouse = { x: 0, y: 0, active: false };
@@ -224,8 +228,8 @@
                 document.getElementById('loading-screen').style.opacity = '0';
                 setTimeout(() => { 
                     document.getElementById('loading-screen').style.display = 'none';
-                }, 800);
-            }, 500);
+                }, 450);
+            }, 200);
         };
 
         const loader = new GLTFLoader(manager);
@@ -240,7 +244,7 @@
             
             createAndAttachContent(currentSection);
             // Home is a hero panel, not a floating card; let the loading screen fade first
-            setTimeout(showHome, reduceMotion ? 0 : 900);
+            setTimeout(showHome, reduceMotion ? 0 : 350);
         });
 
         animate();
@@ -308,7 +312,7 @@
             sprite.position.copy(local);
             sprite.scale.setScalar(maxDim * 0.5);
             brain.add(sprite);
-            glows[p.id] = { sprite, color, local, level: 0 };
+            glows[p.id] = { sprite, color, local, level: 0, baseScale: maxDim * 0.5 };
         });
         highlightLight = new THREE.PointLight(0xffffff, 0, maxDim * 0.9, 1.5);
         brain.add(highlightLight);
@@ -325,8 +329,10 @@
             const g = glows[id];
             const target = (id === hoverId || glowIds.includes(id)) ? 1 : 0;
             g.level += (target - g.level) * step;
-            const flicker = reduceMotion ? 1 : 0.88 + 0.12 * Math.sin(time * 0.08);
-            g.sprite.material.opacity = Math.min(1, g.level * flicker);
+            // While lit, the glow breathes: brightness and size pulse together
+            const beat = reduceMotion ? 0 : Math.sin(now * 0.0045);
+            g.sprite.material.opacity = Math.min(1, g.level * (0.72 + 0.28 * beat));
+            g.sprite.scale.setScalar(g.baseScale * (1 + g.level * (0.12 + 0.12 * beat)));
         });
         if (highlightLight) {
             const lit = hoverId || glowIds[0];
@@ -336,7 +342,8 @@
                 highlightLight.color.copy(g.color);
             }
             const level = g ? g.level : 0;
-            highlightLight.intensity += (level * 10 - highlightLight.intensity) * step;
+            const pulse = reduceMotion ? 1 : 0.65 + 0.55 * (0.5 + 0.5 * Math.sin(now * 0.0045));
+            highlightLight.intensity += (level * 12 * pulse - highlightLight.intensity) * step;
         }
     }
 
@@ -493,6 +500,47 @@
         if (used) used.innerHTML = '';
     }
 
+    // --- Contact page ---
+    function buildContact() {
+        contactEl.innerHTML = renderContact();
+        const btn = contactEl.querySelector('.copy-email');
+        const label = btn.querySelector('span');
+        const status = contactEl.querySelector('.copy-status');
+        let timer = null;
+        btn.addEventListener('click', async () => {
+            const ok = await copyText(CONTACT.email);
+            btn.classList.toggle('copied', ok);
+            btn.querySelector('svg').outerHTML = icon(ok ? 'check' : 'copy');
+            label.textContent = ok ? 'Copied' : 'Copy failed';
+            status.textContent = ok ? 'Email address copied to your clipboard.' : 'Could not copy. The address is shown above.';
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.querySelector('svg').outerHTML = icon('copy');
+                label.textContent = 'Copy email';
+                status.textContent = '';
+            }, 2200);
+        });
+    }
+
+    function showContact() {
+        if (currentSection !== 'CONTACT') return;
+        contactEl.hidden = false;
+        requestAnimationFrame(() => contactEl.classList.add('open'));
+    }
+
+    function hideContact() {
+        contactEl.classList.remove('open');
+        contactEl.hidden = true;
+    }
+
+    function setActiveMenu(key) {
+        document.querySelectorAll('#ui-menu button').forEach((b) => {
+            if (b.dataset.target === key) b.setAttribute('aria-current', 'page');
+            else b.removeAttribute('aria-current');
+        });
+    }
+
     // --- Image viewer for project galleries ---
     const lightbox = document.getElementById('lightbox');
     function openLightbox(src, alt) {
@@ -514,7 +562,7 @@
         if (contentObject) scene.remove(contentObject);
         if (dataProbeObject) scene.remove(dataProbeObject);
 
-        if (key === 'PROJECTS' || key === 'OVERVIEW' || key === 'ABOUT') {
+        if (key === 'PROJECTS' || key === 'OVERVIEW' || key === 'ABOUT' || key === 'CONTACT') {
             // The deck and the Home hero take the place of the floating card
             contentObject = null;
             contentElement = document.createElement('div');
@@ -573,6 +621,7 @@
                     if (currentSection === 'PROJECTS') { showDeck(); return; }
                     if (currentSection === 'OVERVIEW') { showHome(); return; }
                     if (currentSection === 'ABOUT') { showAbout(); return; }
+                    if (currentSection === 'CONTACT') { showContact(); return; }
                     const d = CAMERA_POSITIONS[currentSection];
                     contentElement.style.transform = `translate(${d.offset[0]}, ${d.offset[1]}) scale(1) translateZ(0px)`;
                     contentElement.classList.add('active'); 
@@ -580,7 +629,7 @@
             }
         }
 
-        if (brain && !transitionInProgress && !hoverId) brain.rotation.y += 0.002;
+        if (brain && !transitionInProgress) brain.rotation.y += 0.002;
         if (brain) {
             // On Home the brain leans slightly toward the pointer; everywhere else it settles level
             const follow = currentSection === 'OVERVIEW' && !transitionInProgress && mouse.active && !reduceMotion;
@@ -642,6 +691,8 @@
             hideDeck();
             hideHome();
             hideAbout();
+            hideContact();
+            setActiveMenu(key);
             currentTarget = CAMERA_POSITIONS[key];
             currentSection = key; 
             controls.enabled = false; 
@@ -665,6 +716,7 @@
     buildDeck();
     buildHome();
     buildAbout();
+    buildContact();
     init();
 </script>
 </body>
