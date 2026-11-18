@@ -108,6 +108,23 @@ export const PROJECTS = [
         accent: '#ff7eb6',
         region: [0.0, 0.18, 0.27],
         cover: 'covers/joy.jpg',
+        cardCover: 'covers/joy-card.jpg',
+        storyTitle: 'The story',
+        story: [
+            { src: 'story/joy/01.jpg', alt: 'Most AI waits for a prompt. Joy waits for a moment.' },
+            { src: 'story/joy/02.jpg', alt: 'Joy is the first operating system with a pulse. She doesn\'t just run your apps; she lives your day with you.' },
+            { src: 'story/joy/03.jpg', alt: 'The chatbot versus Joy as a personal OS: interaction, memory, connection and output compared' },
+            { src: 'story/joy/04.jpg', alt: 'The Morning Walk: talking to Joy over a low-latency voice connection on the way to class' },
+            { src: 'story/joy/05.jpg', alt: 'The Desk Materialization: a study plan waiting on the laptop as an artifact' },
+            { src: 'story/joy/06.jpg', alt: 'The Silent Partner: Joy sees the screen and points out the line of code you missed' },
+            { src: 'story/joy/07.jpg', alt: 'The illusion of empathy is a physics problem.' },
+            { src: 'story/joy/08.jpg', alt: 'Zero-Lag Presence: raw PCM audio over WebRTC/UDP to a Cloudflare Durable Object, under 300 ms turnaround' },
+            { src: 'story/joy/09.jpg', alt: 'Instant Intuition: an L1 materialized cache and Cloudflare Durable Objects keep memory local and instant' },
+            { src: 'story/joy/10.jpg', alt: 'The Desk: a private workspace where Joy organizes your digital life' },
+            { src: 'story/joy/11.jpg', alt: 'The Psychological Engine: active-window telemetry and geofencing feed the Resistance Ratio' },
+            { src: 'story/joy/12.jpg', alt: 'Ambient Conversational Extraction: an intent parser maps friction points into a personal knowledge graph' },
+            { src: 'story/joy/13.jpg', alt: 'Guardian: Stop prompting. Start living.' },
+        ],
         coverAlt: 'Joy\'s Desk: inbox of awareness items and generated reports',
         tags: ['Electron', 'React', 'React Native', 'Cloudflare Workers', 'Rust'],
         facts: [
@@ -150,6 +167,12 @@ export const PROJECTS = [
         accent: '#66ccff',
         region: [0.0, -0.04, 0.3],
         cover: 'covers/shield.jpg',
+        cardCover: 'covers/shield-card.jpg',
+        storyTitle: 'The vision',
+        story: [
+            { src: 'story/shield/01.jpg', alt: 'The Guardian Ecosystem: The Architecture of Human Alignment. Shifting AI from workflow to life-flow.' },
+            { src: 'story/shield/02.jpg', alt: 'Identity coherence gauge. Transforming the impossible ideal self into an inevitable reality.' },
+        ],
         coverAlt: 'Three Shield-AI app screens: sign in, onboarding, and daily insight report',
         tags: ['Kotlin', 'Java', 'Room', 'Firebase', 'TensorFlow', 'PyTorch'],
         facts: [
@@ -158,7 +181,7 @@ export const PROJECTS = [
             ['Built with', 'Kotlin, Room, Firebase, TensorFlow, PyTorch'],
             ['Platform', 'Android'],
         ],
-        intro: 'A privacy-first app that looks at how someone actually uses their phone (notifications, app usage, time of day) to surface patterns, emotional drift, and gaps between their goals and their behavior, without asking them to log anything.',
+        intro: 'Shield-AI was the system; Guardian was the presence living inside it. It\'s a privacy-first app that looks at how someone actually uses their phone (notifications, app usage, time of day) to surface patterns, emotional drift, and gaps between their goals and their behavior, without asking them to log anything.',
         sections: [
             {
                 heading: 'What I built',
@@ -273,7 +296,7 @@ export function getProject(id) {
 export function renderDeck() {
     const cards = PROJECTS.map((p) => `
         <button type="button" class="project-card" data-id="${p.id}" style="--accent: ${p.accent}">
-            <span class="card-cover"><img src="${p.cover}" alt="" loading="lazy" decoding="async"></span>
+            <span class="card-cover"><img src="${p.cardCover || p.cover}" alt="" loading="lazy" decoding="async"></span>
             <span class="card-body">
                 <span class="card-kicker">${esc(p.kicker)}</span>
                 <span class="card-title">${esc(p.title)}</span>
@@ -305,10 +328,21 @@ export function renderCaseStudy(p) {
 
     const gallery = p.gallery.length ? `
         <section class="case-gallery-wrap">
-            <h3>Gallery</h3>
+            <h3>${p.story && p.story.length ? 'In the app' : 'Gallery'}</h3>
             <div class="case-gallery">
                 ${p.gallery.map((g) => `
                     <button type="button" class="case-shot${g.portrait ? ' portrait' : ''}" data-full="${g.src}" data-alt="${esc(g.alt)}">
+                        <img src="${g.src}" alt="${esc(g.alt)}" loading="lazy" decoding="async">
+                    </button>`).join('')}
+            </div>
+        </section>` : '';
+
+    const story = p.story && p.story.length ? `
+        <section class="case-story-wrap">
+            <h3>${esc(p.storyTitle || 'The story')}</h3>
+            <div class="case-story">
+                ${p.story.map((g) => `
+                    <button type="button" class="case-shot case-slide" data-full="${g.src}" data-alt="${esc(g.alt)}">
                         <img src="${g.src}" alt="${esc(g.alt)}" loading="lazy" decoding="async">
                     </button>`).join('')}
             </div>
@@ -332,6 +366,7 @@ export function renderCaseStudy(p) {
             <dl class="case-facts">${facts}</dl>
             <div class="case-body">
                 <p class="case-intro">${esc(p.intro)}</p>
+                ${story}
                 ${sections}
                 ${gallery}
                 ${links}

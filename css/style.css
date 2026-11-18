@@ -1456,3 +1456,10 @@ canvas {
     .cv-grid { padding: 12px 0; }
     .cv-entry, .cv-card { break-inside: avoid; }
 }
+
+/* Story slides on a project page: full width, in order, click for fullscreen */
+.case-story { display: flex; flex-direction: column; gap: 16px; }
+.case-shot.case-slide { height: auto; border-radius: 12px; cursor: zoom-in; }
+.case-shot.case-slide img { height: auto; object-fit: contain; }
+.case-shot.case-slide:hover, .case-shot.case-slide:focus-visible { transform: none; }
+@media (prefers-reduced-motion: reduce) { .case-shot { transition: none; } }
