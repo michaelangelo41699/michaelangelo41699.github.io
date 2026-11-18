@@ -151,26 +151,12 @@ export const CAMERA_POSITIONS = {
     
     // --- ABOUT (Updated Button) ---
     ABOUT: {
-        pos: new THREE.Vector3(2, 2, 0), 
-        target: new THREE.Vector3(0.5, 0.5, 0),
+        // The brain sits to the left on wide screens, near the top on phones; the About panel is js/about.js
+        pos: new THREE.Vector3(IS_PHONE ? 0 : 0.85, IS_PHONE ? -0.55 : 0.35, IS_PHONE ? 3 : 2.1),
+        target: new THREE.Vector3(IS_PHONE ? 0 : 0.85, IS_PHONE ? -0.55 : 0.05, 0),
         contentPos: new THREE.Vector3(-3, -3, 0),
-        offset: ['100%', '-50%'], 
-        html: `
-            <h2>About me</h2>
-            <p>I'm curious about why people do what they do, and whether technology can help us see ourselves more clearly instead of just capturing our attention. That question shapes most of what I build.</p>
-            <p>Lately it has led me to the brain itself. I'm researching how spiking neural networks can learn new things without overwriting old memories, with the goal of running that work on neuromorphic hardware.</p>
-            <p>I've been building software since 2015, when I founded MasterCraftCode, a drag-and-drop tool that generated mobile apps for 100+ non-technical clients.</p>
-            <p>Tools I work with:</p>
-            <ul style="list-style: square; margin-left: 20px;">
-                <li>AI &amp; ML: TensorFlow, PyTorch, snnTorch, NLP, spiking neural networks, behavioral pattern recognition.</li>
-                <li>Languages: Python, Java, JavaScript, TypeScript, SQL.</li>
-                <li>Apps &amp; web: React Native, Android, React, Three.js.</li>
-                <li>Cloud: AWS, Firebase, FastAPI, Redis.</li>
-            </ul>
-            <div class="contact-buttons">
-                <button onclick="openProject('RESUME')">Read my resume</button>
-            </div>
-        `
+        offset: ['100%', '-50%'],
+        html: ''
     },
     
     // --- PROJECTS ---

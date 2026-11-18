@@ -113,6 +113,8 @@
 
 <section id="home-hero" aria-labelledby="home-title" hidden></section>
 
+<section id="about-panel" aria-labelledby="about-title" hidden></section>
+
 <section id="project-deck" aria-labelledby="deck-title" hidden></section>
 
 <div id="lightbox" hidden>
@@ -136,6 +138,7 @@
     import { CAMERA_POSITIONS, LERP_FACTOR, BRAIN_SCALE, PROJECT_DETAILS } from './js/data.js';
     import { PROJECTS, getProject, renderDeck, renderCaseStudy } from './js/projects.js';
     import { renderHome } from './js/home.js';
+    import { renderAbout, EXTRA_REGIONS } from './js/about.js';
 
     // --- GLOBAL VARIABLES ---
     let brain, scene, camera, renderer, labelRenderer, controls;
@@ -150,6 +153,9 @@
     // Project deck and brain highlights
     const deckEl = document.getElementById('project-deck');
     const homeEl = document.getElementById('home-hero');
+    const aboutEl = document.getElementById('about-panel');
+    let glowIds = [];      // regions lit by the About page (timeline or a skill)
+    let skillIds = null;   // set while a skill chip is selected
     const mouse = { x: 0, y: 0, active: false };
     const glows = {};
     let highlightLight = null;
@@ -291,7 +297,7 @@
         const size = bbox.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const tex = makeGlowTexture();
-        PROJECTS.forEach((p) => {
+        [...PROJECTS, ...EXTRA_REGIONS].forEach((p) => {
             const [u, v, w] = p.region;
             const local = new THREE.Vector3(u * size.x, v * size.y, w * size.z).add(center);
             const color = new THREE.Color(p.accent);
@@ -317,13 +323,14 @@
         const step = reduceMotion ? 1 : Math.min(1, dt * 9);
         Object.keys(glows).forEach((id) => {
             const g = glows[id];
-            const target = id === hoverId ? 1 : 0;
+            const target = (id === hoverId || glowIds.includes(id)) ? 1 : 0;
             g.level += (target - g.level) * step;
             const flicker = reduceMotion ? 1 : 0.88 + 0.12 * Math.sin(time * 0.08);
             g.sprite.material.opacity = Math.min(1, g.level * flicker);
         });
         if (highlightLight) {
-            const g = hoverId && glows[hoverId];
+            const lit = hoverId || glowIds[0];
+            const g = lit && glows[lit];
             if (g) {
                 highlightLight.position.copy(g.local);
                 highlightLight.color.copy(g.color);
@@ -408,6 +415,84 @@
         mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
     });
 
+    // --- About page ---
+    function buildAbout() {
+        aboutEl.innerHTML = renderAbout();
+        aboutEl.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => window.navigateTo(b.dataset.go)));
+        aboutEl.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => window.openProject(b.dataset.open)));
+        aboutEl.querySelectorAll('.tl-open').forEach((b) => b.addEventListener('click', () => window.openProject(b.dataset.project)));
+        aboutEl.querySelectorAll('.tl-item').forEach((item) => {
+            item.addEventListener('mouseenter', () => { hoverId = item.dataset.glow; });
+            item.addEventListener('mouseleave', () => { if (hoverId === item.dataset.glow) hoverId = null; });
+        });
+        aboutEl.querySelectorAll('.skill-chip').forEach((chip) => {
+            chip.addEventListener('click', () => selectSkill(chip));
+        });
+        aboutEl.addEventListener('scroll', updateTimeline, { passive: true });
+    }
+
+    function selectSkill(chip) {
+        const wasOn = chip.getAttribute('aria-pressed') === 'true';
+        aboutEl.querySelectorAll('.skill-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+        const used = aboutEl.querySelector('.skill-used');
+        if (wasOn) {
+            skillIds = null;
+            used.innerHTML = '';
+            updateTimeline();
+            return;
+        }
+        chip.setAttribute('aria-pressed', 'true');
+        const ids = chip.dataset.projects ? chip.dataset.projects.split(',') : [];
+        skillIds = ids;
+        glowIds = ids;
+        aboutEl.querySelectorAll('.tl-item').forEach((t) => t.classList.remove('active'));
+        if (!ids.length) {
+            used.innerHTML = `<p>${chip.textContent} is part of my toolkit, but none of the projects here use it yet.</p>`;
+            return;
+        }
+        const buttons = ids.map((id) => {
+            const p = getProject(id);
+            return p ? `<button type="button" class="used-link" data-project="${p.id}" style="--accent:${p.accent}">${p.title}</button>` : '';
+        }).join('');
+        used.innerHTML = `<p>${chip.textContent} is used in</p><div class="used-links">${buttons}</div>`;
+        used.querySelectorAll('.used-link').forEach((b) => b.addEventListener('click', () => window.openProject(b.dataset.project)));
+    }
+
+    // The timeline entry nearest the upper part of the panel is "current" and lights the brain
+    function updateTimeline() {
+        if (aboutEl.hidden || skillIds) return;
+        const items = [...aboutEl.querySelectorAll('.tl-item')];
+        const box = aboutEl.getBoundingClientRect();
+        const line = box.top + box.height * 0.45;
+        let best = null, bestDist = Infinity;
+        items.forEach((it) => {
+            const r = it.getBoundingClientRect();
+            if (r.bottom < box.top || r.top > box.bottom) return;
+            const d = Math.abs((r.top + r.bottom) / 2 - line);
+            if (d < bestDist) { bestDist = d; best = it; }
+        });
+        items.forEach((it) => it.classList.toggle('active', it === best));
+        glowIds = best ? [best.dataset.glow] : [];
+    }
+
+    function showAbout() {
+        if (currentSection !== 'ABOUT') return;
+        aboutEl.hidden = false;
+        aboutEl.scrollTop = 0;
+        requestAnimationFrame(() => { aboutEl.classList.add('open'); updateTimeline(); });
+    }
+
+    function hideAbout() {
+        aboutEl.classList.remove('open');
+        aboutEl.hidden = true;
+        hoverId = null;
+        glowIds = [];
+        skillIds = null;
+        aboutEl.querySelectorAll('.skill-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+        const used = aboutEl.querySelector('.skill-used');
+        if (used) used.innerHTML = '';
+    }
+
     // --- Image viewer for project galleries ---
     const lightbox = document.getElementById('lightbox');
     function openLightbox(src, alt) {
@@ -429,7 +514,7 @@
         if (contentObject) scene.remove(contentObject);
         if (dataProbeObject) scene.remove(dataProbeObject);
 
-        if (key === 'PROJECTS' || key === 'OVERVIEW') {
+        if (key === 'PROJECTS' || key === 'OVERVIEW' || key === 'ABOUT') {
             // The deck and the Home hero take the place of the floating card
             contentObject = null;
             contentElement = document.createElement('div');
@@ -487,6 +572,7 @@
                     if(dataProbeObject) dataProbeObject.element.style.opacity = '0';
                     if (currentSection === 'PROJECTS') { showDeck(); return; }
                     if (currentSection === 'OVERVIEW') { showHome(); return; }
+                    if (currentSection === 'ABOUT') { showAbout(); return; }
                     const d = CAMERA_POSITIONS[currentSection];
                     contentElement.style.transform = `translate(${d.offset[0]}, ${d.offset[1]}) scale(1) translateZ(0px)`;
                     contentElement.classList.add('active'); 
@@ -555,6 +641,7 @@
             if (contentElement) contentElement.classList.remove('active');
             hideDeck();
             hideHome();
+            hideAbout();
             currentTarget = CAMERA_POSITIONS[key];
             currentSection = key; 
             controls.enabled = false; 
@@ -577,6 +664,7 @@
 
     buildDeck();
     buildHome();
+    buildAbout();
     init();
 </script>
 </body>
