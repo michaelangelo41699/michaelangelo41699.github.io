@@ -30,6 +30,16 @@ export const CAMERA_POSITIONS = {
         html: ''
     },
     
+    // --- WHY ---
+    WHY: {
+        // Looking slightly down on the brain, which sits to the right; phones see it at the top
+        pos: new THREE.Vector3(IS_PHONE ? 0 : -0.7, IS_PHONE ? 0.2 : 0.95, IS_PHONE ? 3.1 : 1.9),
+        target: new THREE.Vector3(IS_PHONE ? 0 : -0.7, IS_PHONE ? -0.5 : 0.05, 0),
+        contentPos: new THREE.Vector3(3, 3, 0),
+        offset: ['-100%', '-50%'],
+        html: ''
+    },
+
     // --- ABOUT (Updated Button) ---
     ABOUT: {
         // The brain sits to the left on wide screens, near the top on phones; the About panel is js/about.js
