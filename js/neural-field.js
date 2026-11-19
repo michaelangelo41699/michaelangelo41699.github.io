@@ -136,6 +136,10 @@ export function createNeuralField(scene, { phone = false, reduceMotion = false }
     const flash = new Float32Array(N);
     const flashColor = pos.map((_, i) => base[i].clone());
     const lastFire = new Float32Array(N).fill(-10);
+    const attention = new Float32Array(N);   // how close the cursor is to each neuron (0..1)
+    const localRay = new THREE.Ray();
+    const toLocal = new THREE.Matrix4();
+    const NOTICE_RADIUS = 1.8;               // world units around the cursor's line of sight
     const spikes = [];
     const queue = [];   // delayed firings: { at, n, from, color }
     let clock = 0;
@@ -163,7 +167,8 @@ export function createNeuralField(scene, { phone = false, reduceMotion = false }
     let spontaneous = 0;
 
     // tint: a THREE.Color while a project is lit on the brain, otherwise null
-    function update(dt, tint) {
+    // ray: the cursor's line of sight (THREE.Ray), or null on touch screens
+    function update(dt, tint, ray) {
         dt = Math.min(dt, 0.05);
         clock += dt;
         if (!reduceMotion) group.rotation.y += dt * 0.012;
@@ -176,6 +181,20 @@ export function createNeuralField(scene, { phone = false, reduceMotion = false }
                 spontaneous -= 1;
                 const n = Math.floor(Math.random() * N);
                 fire(n, -1, tint || base[n]);
+            }
+
+            // Neurons near the cursor brighten a little and fire more often
+            if (ray) {
+                toLocal.copy(group.matrixWorld).invert();
+                localRay.copy(ray).applyMatrix4(toLocal);
+                const r2 = NOTICE_RADIUS * NOTICE_RADIUS;
+                for (let n = 0; n < N; n++) {
+                    const d2 = localRay.distanceSqToPoint(pos[n]);
+                    if (d2 >= r2) continue;
+                    const near = 1 - d2 / r2;
+                    attention[n] = Math.max(attention[n], near);
+                    if (Math.random() < dt * 0.9 * near) fire(n, -1, tint || base[n]);
+                }
             }
 
             // Move signals; on arrival the target neuron may fire on (a cascade)
@@ -201,10 +220,11 @@ export function createNeuralField(scene, { phone = false, reduceMotion = false }
         // Neurons: dim resting glow plus a fading flash
         for (let n = 0; n < N; n++) {
             flash[n] = Math.max(0, flash[n] - dt * 1.8);
-            const f = flash[n];
-            tmp.copy(base[n]).multiplyScalar(0.32).lerp(white, f * 0.6).add(tmp2.copy(flashColor[n]).multiplyScalar(f));
+            attention[n] = Math.max(0, attention[n] - dt * 1.5);
+            const f = flash[n], a = attention[n];
+            tmp.copy(base[n]).multiplyScalar(0.32 + a * 0.45).lerp(white, f * 0.6).add(tmp2.copy(flashColor[n]).multiplyScalar(f));
             tmp.toArray(coreCol, n * 3);
-            tmp.copy(flashColor[n]).multiplyScalar(f * 0.55).toArray(haloCol, n * 3);
+            tmp.copy(flashColor[n]).multiplyScalar(f * 0.55).add(tmp2.copy(base[n]).multiplyScalar(a * 0.18)).toArray(haloCol, n * 3);
         }
         coreGeo.attributes.color.needsUpdate = true;
         haloGeo.attributes.color.needsUpdate = true;
