@@ -68,6 +68,11 @@
 </div>
 <script src="js/loader.js"></script>
 
+<div id="transit" aria-hidden="true" hidden>
+    <canvas id="transit-canvas"></canvas>
+    <p id="transit-label"></p>
+</div>
+
 <div id="expanded-project" class="expanded-card" role="dialog" aria-modal="true" aria-label="Project details">
     <button type="button" class="close-button" onclick="closeExpandedCard()" aria-label="Close">&times;</button>
     <div id="expanded-content"></div>
@@ -557,18 +562,33 @@
     
     const SECTION_LABELS = { OVERVIEW: 'Home', ABOUT: 'About me', PROJECTS: 'Projects', CONTACT: 'Say hello' };
 
-    function createDataProbe(data) {
-        const el = document.createElement('div');
-        el.className = 'data-probe';
-        el.innerHTML = `<div>${SECTION_LABELS[currentSection] || currentSection}</div><div class="progress-bar"><div class="progress-fill" id="probe-fill"></div></div>`;
-        const label = new CSS2DObject(el);
-        label.position.copy(data.contentPos.clone().add(new THREE.Vector3(0.5, -0.5, 0)));
-        dataProbeObject = label;
-        scene.add(label);
-        setTimeout(() => { 
-            el.classList.add('ready'); 
-            if(document.getElementById('probe-fill')) document.getElementById('probe-fill').style.width = '100%';
-        }, 50);
+    // --- Page transition: the loading screen's neural network, in miniature ---
+    const transitEl = document.getElementById('transit');
+    let transitSketch = null;
+    let transitStart = 0;
+    let transitHideTimer = null;
+
+    function showTransit(key) {
+        clearTimeout(transitHideTimer);
+        document.getElementById('transit-label').textContent = SECTION_LABELS[key] || '';
+        transitStart = Math.max(0.0001, camera.position.distanceTo(CAMERA_POSITIONS[key].pos));
+        transitEl.hidden = false;
+        if (!transitSketch) transitSketch = window.NeuralSketch(document.getElementById('transit-canvas'), { count: 34, small: 30 });
+        else transitSketch.reset();
+        requestAnimationFrame(() => transitEl.classList.add('show'));
+    }
+
+    function finishTransit() {
+        if (transitSketch) transitSketch.finish();
+        transitEl.classList.add('done');
+    }
+
+    function hideTransit() {
+        transitEl.classList.remove('show', 'done');
+        transitHideTimer = setTimeout(() => {
+            transitEl.hidden = true;
+            if (transitSketch) transitSketch.stop();
+        }, 400);
     }
 
     // --- 5. ANIMATION LOOP ---
@@ -577,6 +597,7 @@
         
         if (transitionInProgress) {
             camera.position.lerp(currentTarget.pos, LERP_FACTOR);
+            if (transitSketch && transitStart > 0) transitSketch.setProgress(1 - camera.position.distanceTo(currentTarget.pos) / transitStart);
             controls.target.lerp(currentTarget.target, LERP_FACTOR);
             
             if (brain) {
@@ -588,10 +609,10 @@
             if (camera.position.distanceTo(currentTarget.pos) < 0.01) {
                 transitionInProgress = false;
                 if (brain) brain.scale.set(BRAIN_SCALE, BRAIN_SCALE, BRAIN_SCALE);
-                createDataProbe(currentTarget);
+                finishTransit();
                 setTimeout(() => {
                     controls.enabled = true;
-                    if(dataProbeObject) dataProbeObject.element.style.opacity = '0';
+                    hideTransit();
                     if (currentSection === 'PROJECTS') { showDeck(); return; }
                     if (currentSection === 'OVERVIEW') { showHome(); return; }
                     if (currentSection === 'ABOUT') { showAbout(); return; }
@@ -683,6 +704,7 @@
             hideAbout();
             hideContact();
             setActiveMenu(key);
+            showTransit(key);
             currentTarget = CAMERA_POSITIONS[key];
             currentSection = key; 
             setTitle();
