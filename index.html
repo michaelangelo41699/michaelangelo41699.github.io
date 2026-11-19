@@ -120,6 +120,9 @@
     let time = 0; 
     let contentObject, contentElement, neuralField, dataProbeObject; 
     let lastFrame = performance.now();
+    // Brain spin in radians per second, the same on every screen (about one turn every 2.5 minutes)
+    const SPIN_SPEED = 0.042;
+    let spin = 0;
 
     let currentSection = 'OVERVIEW'; 
     let currentTarget = CAMERA_POSITIONS.OVERVIEW;
@@ -627,7 +630,14 @@
             }
         }
 
-        if (brain && !transitionInProgress) brain.rotation.y += 0.002;
+        const nowMs = performance.now();
+        const frameDt = Math.min(0.1, (nowMs - lastFrame) / 1000);
+        if (brain) {
+            // Ease the spin up and down instead of starting and stopping abruptly
+            const want = transitionInProgress ? 0 : SPIN_SPEED;
+            spin += (want - spin) * Math.min(1, frameDt * 1.5);
+            brain.rotation.y += spin * frameDt;
+        }
         if (brain) {
             // On Home the brain leans slightly toward the pointer; everywhere else it settles level
             const follow = currentSection === 'OVERVIEW' && !transitionInProgress && mouse.active && !reduceMotion;
@@ -637,7 +647,6 @@
             brain.rotation.z += (tz - brain.rotation.z) * 0.05;
         }
         updateHighlights();
-        const nowMs = performance.now();
         if (neuralField) {
             const lit = hoverId || glowIds[0];
             neuralField.update((nowMs - lastFrame) / 1000, lit && glows[lit] ? glows[lit].color : null);
